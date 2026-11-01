@@ -1,4 +1,6 @@
 import type { HospitalSymptomReportResult } from "../../../shared/hospitalContracts";
+import { DEMO_ATTENTION_TERMS } from "../../../shared/symptomTerms";
+import { findCurrentSymptomAssertion } from "../../../shared/symptomAssertions";
 
 export type ConnectedSymptomInput = {
   text: string;
@@ -11,14 +13,31 @@ export type ConnectedSymptomOutcome =
   | { kind: "recorded"; text: string; alertId: string }
   | { kind: "unconfirmed"; text: string; alertId?: undefined };
 
-// This is an offline fallback only, not the service's detector or a clinical score.
-// It never generates an alert: the authoritative decision is made by the service.
-function mayNeedSafetyFallback(text: string): boolean {
-  return /\b(febre|febril|vomit\w*|fever\w*|throwing up|calafrios|chills|sang\w*|bleed\w*|blood|falta de ar|respirar|breathe|breath|desmai\w*|faint\w*|convuls\w*|seizure|dor|pain)\b/.test(
-    text
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .toLowerCase(),
+// The service terms select a care-seeking fallback only. A delivery receipt
+// still requires its API; this path never creates an alert or scores symptoms.
+
+/** Guidance without any delivery claim, for disconnected or unconfirmed turns.
+ * Keeps negation, time, person and hypothetical scope from the service mechanics.
+ */
+export function getSymptomCareGuidance(
+  input: Pick<ConnectedSymptomInput, "text" | "locale">,
+): string | null {
+  const finding = findCurrentSymptomAssertion(input.text, DEMO_ATTENTION_TERMS);
+  if (!finding) return null;
+  const fever = /^(?:febre|febril|fever|feverish)$/.test(finding);
+  const explanation =
+    input.locale === "en-US"
+      ? fever
+        ? "Fever during cancer treatment can be a sign of infection and needs prompt assessment. "
+        : "Symptoms like these during cancer care need professional assessment. "
+      : fever
+        ? "Febre durante o tratamento oncológico pode ser sinal de infecção e precisa de avaliação imediata. "
+        : "Sintomas como esses durante o acompanhamento oncológico precisam de avaliação profissional. ";
+  return (
+    explanation +
+    (input.locale === "en-US"
+      ? "Contact your oncology service now. If you cannot reach them, seek urgent in-person care. Do not wait for a reply in the app."
+      : "Entre em contato com seu serviço de oncologia agora. Se não conseguir contato, procure um pronto atendimento. Não espere uma resposta pelo aplicativo.")
   );
 }
 
@@ -80,13 +99,14 @@ export async function checkConnectedSymptoms({
     };
   } catch {
     if (signal.aborted) throw canceled();
-    if (!mayNeedSafetyFallback(input.text)) return { kind: "not_applicable" };
+    const guidance = getSymptomCareGuidance(input);
+    if (!guidance) return { kind: "not_applicable" };
     return {
       kind: "unconfirmed",
       text:
         input.locale === "en-US"
-          ? "I could not confirm that the care team panel received this report. If you have fever, vomiting or other concerning symptoms during cancer care, contact your oncology service now. If you cannot reach them, seek urgent in-person care. Do not wait for the app. You can retry sending this same report."
-          : "Não consegui confirmar que o painel da equipe recebeu este relato. Se você está com febre, vômitos ou outros sintomas que preocupam durante o acompanhamento oncológico, entre em contato com o serviço de oncologia agora. Se não conseguir contato, procure um pronto atendimento. Não espere pelo aplicativo. Você pode tentar enviar este mesmo relato novamente.",
+          ? `I could not confirm that the care team panel received this report. ${guidance} You can retry sending this same report.`
+          : `Não consegui confirmar que o painel da equipe recebeu este relato. ${guidance} Você pode tentar enviar este mesmo relato novamente.`,
     };
   } finally {
     clearTimeout(timer);

@@ -302,6 +302,64 @@ describe("live duplex conversation", () => {
     expect(deps.onError).toHaveBeenCalledTimes(1);
     await controller.stop();
   });
+  it.each(["thinking", "speaking"] as const)(
+    "a microphone failure while muting during %s preserves the accepted answer before offering retry",
+    async (stage) => {
+      const answer = deferred<{ text: string }>();
+      const playback = deferred<void>();
+      const { controller, deps, sessions } = setup({
+        respond: vi.fn(() => answer.promise),
+        speak: vi.fn(() => playback.promise),
+      });
+      await controller.start();
+      const { handlers, input } = sessions[0];
+      handlers.onTranscript("Minha consulta?");
+      await flush();
+      const signal = vi.mocked(deps.respond).mock.calls[0][1];
+      if (stage === "speaking") {
+        answer.resolve({ text: "Sua consulta está cadastrada." });
+        await flush();
+      }
+      const stops = vi.mocked(deps.stopSpeaking).mock.calls.length;
+      const cancellations = vi.mocked(deps.cancelRequests).mock.calls.length;
+      vi.mocked(input.setMuted).mockImplementationOnce(() => {
+        handlers.onError(new Error("Canal do microfone fechado"));
+      });
+
+      await controller.setMuted(true);
+      expect(signal.aborted).toBe(false);
+      expect(deps.stopSpeaking).toHaveBeenCalledTimes(stops);
+      expect(deps.cancelRequests).toHaveBeenCalledTimes(cancellations);
+      expect(input.close).toHaveBeenCalledTimes(1);
+      expect(deps.onState).toHaveBeenLastCalledWith(stage);
+      expect(deps.onError).not.toHaveBeenCalled();
+      // Closing an unhealthy input must reject its late callbacks without
+      // invalidating the separate accepted response's generation.
+      handlers.onTranscript("Evento atrasado");
+      handlers.onSpeechStart();
+      handlers.onError(new Error("Erro atrasado"));
+      if (stage === "thinking") {
+        answer.resolve({ text: "Sua consulta está cadastrada." });
+        await flush();
+      }
+      expect(deps.speak).toHaveBeenCalledExactlyOnceWith(
+        "Sua consulta está cadastrada.",
+        signal,
+      );
+      playback.resolve();
+      await flush();
+      expect(deps.onState).toHaveBeenLastCalledWith("error");
+      expect(deps.onError).toHaveBeenCalledExactlyOnceWith(
+        expect.objectContaining({ message: "Canal do microfone fechado" }),
+      );
+      expect(signal.aborted).toBe(false);
+      await controller.start();
+      expect(deps.connect).toHaveBeenCalledTimes(2);
+      expect(deps.onState).toHaveBeenLastCalledWith("listening");
+      expect(deps.respond).toHaveBeenCalledTimes(1);
+      await controller.stop();
+    },
+  );
   it("a stalled cancellation cannot block every following answer", async () => {
     vi.useFakeTimers();
     const { controller, deps, sessions } = setup({

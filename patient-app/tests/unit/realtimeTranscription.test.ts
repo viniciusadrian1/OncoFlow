@@ -41,6 +41,26 @@ const completed = (id: string, transcript = id) =>
   });
 
 describe("transcription item routing", () => {
+  it("delivers a completed negated statement verbatim instead of inferring symptoms", () => {
+    const h = handlers(),
+      router = createTranscriptionEvents(h);
+    router.receive(started("negation"));
+    router.receive(
+      event("conversation.item.input_audio_transcription.delta", "negation", {
+        delta: "Estou com dor",
+      }),
+    );
+    router.receive(
+      completed(
+        "negation",
+        "Não estou com dor nem febre. Só quero abrir a agenda.",
+      ),
+    );
+    expect(h.onTranscript).toHaveBeenCalledExactlyOnceWith(
+      "Não estou com dor nem febre. Só quero abrir a agenda.",
+    );
+  });
+
   it("keeps a finished pre-mute utterance and rejects all new muted speech", () => {
     const h = handlers(),
       router = createTranscriptionEvents(h);

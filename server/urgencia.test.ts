@@ -69,3 +69,58 @@ test('clause boundaries preserve hypothetical questions, simple denial, historic
     'Estou sem febre, sem vômitos.',
   ]) assert.equal(detectarRelatoAfirmativo(report), undefined, report);
 });
+
+test('current patient symptom lists retain the first person assertion after nausea', () => {
+  for (const report of [
+    'Estou com náusea, febre e vômito.',
+    'Estou com náuseas, febre e vômitos.',
+    'Tenho enjoo e febre.',
+    'Eu estou com náusea e vomitando agora.',
+    'I have nausea, fever and vomiting.',
+    'I am nauseous and vomiting.',
+  ]) assert.ok(detectarRelatoAfirmativo(report), report);
+});
+
+test('symptom lists do not erase negation, conditional, education, history or another person', () => {
+  for (const report of [
+    'Não tenho náusea, febre nem vômito.',
+    'Estou sem náusea, febre e vômito.',
+    'Estou com náusea, sem febre nem vômitos.',
+    'Se eu estiver com náusea, febre e vômito, o que faço?',
+    'Minha mãe está com náusea, febre e vômito.',
+    'Tenho uma dúvida sobre náusea, febre e vômito.',
+    'Estou estudando náusea, febre e vômito.',
+    'Ontem eu estava com náusea, febre e vômito.',
+    'I do not have nausea, fever or vomiting.',
+    'If I have nausea, fever and vomiting, what should I do?',
+    'My mother has nausea, fever and vomiting.',
+    'I have a question about nausea, fever and vomiting.',
+  ]) assert.equal(detectarRelatoAfirmativo(report), undefined, report);
+});
+
+test('postfix denial applies to the local symptom rather than an affirmed neighbouring symptom', () => {
+  for (const report of [
+    'Estou com náusea, febre não.',
+    'Tenho enjoo e febre não.',
+    'I have nausea, fever no.',
+  ]) assert.equal(detectarRelatoAfirmativo(report), undefined, report);
+  for (const report of [
+    'Tenho febre, não vômitos.',
+    'Estou com náusea, febre não, mas estou vomitando.',
+    'I have fever, not vomiting.',
+  ]) assert.ok(detectarRelatoAfirmativo(report), report);
+});
+
+test('current temporal prefixes preserve inherent first-person reports without admitting another person or a condition', () => {
+  for (const report of [
+    'Agora não consigo respirar.',
+    'Hoje eu não consigo manter líquidos.',
+    'Agora não aguento mais.',
+    "Now I can't breathe.",
+  ]) assert.ok(detectarRelatoAfirmativo(report), report);
+  for (const report of [
+    'Se agora não consigo respirar, o que faço?',
+    'Minha mãe diz que agora não consigo respirar.',
+    'Ontem não consigo respirar.',
+  ]) assert.equal(detectarRelatoAfirmativo(report), undefined, report);
+});

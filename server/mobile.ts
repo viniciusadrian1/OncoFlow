@@ -391,7 +391,10 @@ export function criarIntegracaoMobile(options: MobileOptions = {}) {
     const result = idempotent(req, p, 'symptom_report', key, item, () => {
       adicionarMensagem(p, { autor: 'paciente', nomeAutor: p.nome, texto: literal, origem: source === 'voice' ? 'voz' : 'texto', visivelPaciente: true });
       const alert = registrarSinalUrgencia(p, literal, finding!.termo);
-      const record: SymptomReport = { ...baseFor(p.id, gerarId('symptom')), text: literal, source, recordedAt: agoraISO(), status: 'recorded', alertId: alert.id, reviewRequired: true, guidance: CONFIG_SERVICO.relatoAutomaticoDemo.orientacao[locale] };
+      const guidance = /^(?:febre|febril|fever|feverish)$/.test(finding?.termo ?? '')
+        ? CONFIG_SERVICO.relatoAutomaticoDemo.orientacaoFebre[locale]
+        : CONFIG_SERVICO.relatoAutomaticoDemo.orientacao[locale];
+      const record: SymptomReport = { ...baseFor(p.id, gerarId('symptom')), text: literal, source, recordedAt: agoraISO(), status: 'recorded', alertId: alert.id, reviewRequired: true, guidance };
       extras.symptomReports[record.id] = record;
       auditar(p.id, 'registrou_relato_automatico_demo', record.id);
       return record;

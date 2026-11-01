@@ -24,6 +24,7 @@ coverage/
 outputs/.oncoflow-demo/
 output/apk/
 /output/
+/tmp/
 /patient-app/docs/previews/
 public/app/
 patient-app/public/vad/*

@@ -2,6 +2,8 @@
 // regra clínica do código (CLAUDE.md, regra 6). Os valores marcados `exemplo` são ilustrativos e
 // precisam ser definidos com o serviço antes de qualquer uso real.
 
+import { DEMO_ATTENTION_TERMS } from '../patient-app/shared/symptomTerms';
+
 import type { AvisoUrgencia, OpcaoCheckin, PapelEquipe, TipoPendencia } from '../src/types';
 
 export interface RegraRevisaoCheckin {
@@ -27,6 +29,7 @@ export interface ConfigServico {
     exemplo: true;
     fontes: string[];
     orientacao: Record<'pt-BR' | 'en-US', string>;
+    orientacaoFebre: Record<'pt-BR' | 'en-US', string>;
   };
   avisoUrgencia: AvisoUrgencia;
   quemVe: string;
@@ -41,80 +44,7 @@ export interface ConfigServico {
 export const CONFIG_SERVICO: ConfigServico = {
   instituicao: 'Fictional Oncology Center',
   assistenteNome: 'Lia',
-  termosUrgencia: [
-    'fever',
-    'feverish',
-    'chills',
-    'shivering',
-    'a lot of pain',
-    'severe pain',
-    'strong pain',
-    'unbearable pain',
-    'chest pain',
-    'short of breath',
-    'shortness of breath',
-    'can t breathe',
-    'trouble breathing',
-    'hard to breathe',
-    'bleeding',
-    'vomiting blood',
-    'vomiting',
-    'vomit',
-    'throwing up',
-    'coughing blood',
-    'coughing up blood',
-    'blood in my urine',
-    'blood in the urine',
-    'blood in my stool',
-    'blood in the stool',
-    'fainted',
-    'passed out',
-    'seizure',
-    'very confused',
-    'mental confusion',
-    'can t stop vomiting',
-    'keep vomiting',
-    'can t keep fluids down',
-    'can t drink',
-    'can t take it anymore',
-    // Mesma lista ilustrativa da demonstração em português. A equipe revisa a hipótese;
-    // a correspondência textual não atribui gravidade nem substitui avaliação clínica.
-    'febre',
-    'febril',
-    'calafrios',
-    'muita dor',
-    'dor intensa',
-    'dor forte',
-    'dor insuportável',
-    'dor no peito',
-    'falta de ar',
-    'não consigo respirar',
-    'dificuldade para respirar',
-    'dificuldade de respirar',
-    'sangramento',
-    'sangrando',
-    'vomitando sangue',
-    'vomitando',
-    'vômitos',
-    'vômito',
-    'vomitar',
-    'vomitado',
-    'vômito com sangue',
-    'tossindo sangue',
-    'sangue na urina',
-    'sangue nas fezes',
-    'desmaiei',
-    'desmaio',
-    'convulsão',
-    'muito confuso',
-    'muito confusa',
-    'confusão mental',
-    'não paro de vomitar',
-    'não consigo parar de vomitar',
-    'não consigo beber',
-    'não consigo manter líquidos',
-    'não aguento mais',
-  ],
+  termosUrgencia: [...DEMO_ATTENTION_TERMS],
   termosUrgenciaExemplo: true,
   // Texto de demonstração, não protocolo aprovado de um serviço real. Sem limiar clínico
   // no código. A lista só produz hipótese para revisão humana, nunca diagnóstico/prioridade.
@@ -123,8 +53,12 @@ export const CONFIG_SERVICO: ConfigServico = {
     exemplo: true,
     fontes: ['https://www.cdc.gov/cancer-preventing-infections/patients/fever.html', 'https://www.cancer.gov/about-cancer/treatment/side-effects/infection'],
     orientacao: {
-      'pt-BR': 'Seu relato foi registrado e há uma pendência para revisão da equipe. Procure avaliação agora pelo seu serviço de oncologia. Se não conseguir contato, procure pronto atendimento. Não espere uma resposta pelo aplicativo. Esta orientação é uma configuração da demonstração, a validar com o serviço.',
-      'en-US': 'Your report was recorded and a team review is pending. Seek assessment now from your oncology service. If you cannot reach them, seek urgent care. Do not wait for an app reply. This guidance is a demo configuration, subject to service validation.',
+      'pt-BR': 'Seu relato foi registrado e há uma pendência para revisão da equipe. Sintomas como esses durante o acompanhamento oncológico precisam de avaliação profissional. Procure avaliação agora pelo seu serviço de oncologia. Se não conseguir contato, procure pronto atendimento. Não espere uma resposta pelo aplicativo.',
+      'en-US': 'Your report was recorded and a team review is pending. Symptoms like these during cancer care need professional assessment. Seek assessment now from your oncology service. If you cannot reach them, seek urgent care. Do not wait for an app reply.',
+    },
+    orientacaoFebre: {
+      'pt-BR': 'Seu relato foi registrado e há uma pendência para revisão da equipe. Febre durante o tratamento oncológico pode ser sinal de infecção e precisa de avaliação imediata. Procure avaliação agora pelo seu serviço de oncologia. Se não conseguir contato, procure pronto atendimento. Não espere uma resposta pelo aplicativo.',
+      'en-US': 'Your report was recorded and a team review is pending. Fever during cancer treatment can be a sign of infection and needs prompt assessment. Seek assessment now from your oncology service. If you cannot reach them, seek urgent care. Do not wait for an app reply.',
     },
   },
   avisoUrgencia: {

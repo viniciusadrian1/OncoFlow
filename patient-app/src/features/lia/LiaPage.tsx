@@ -40,6 +40,7 @@ import {
 import { SafetyDemo, type SafetyDemoHandle } from "../safety/SafetyDemo";
 import {
   checkConnectedSymptoms,
+  getSymptomCareGuidance,
   type ConnectedSymptomInput,
   type ConnectedSymptomOutcome,
 } from "../safety/connectedSymptoms";
@@ -386,6 +387,8 @@ export function LiaPage({
       signal,
     );
     if (connectedResult) return connectedResult;
+    const offlineReply = offlineSymptomReply(text);
+    if (offlineReply) return offlineReply;
     const decision =
       !latest.current.appBridge.getSnapshot().connected &&
       safety.current?.submitLiveReport(text, source, operationId);
@@ -421,6 +424,22 @@ export function LiaPage({
       return applyExecution(execution);
     }
     return result;
+  }
+  function offlineSymptomReply(text: string) {
+    if (
+      latest.current.appBridge.getSnapshot().connected ||
+      safety.current?.previewLiveReport(text)?.matched
+    )
+      return null;
+    const guidance = getSymptomCareGuidance({ text, locale });
+    if (!guidance) return null;
+    actions.current?.clear();
+    setPendingAction(null);
+    const receipt =
+      locale === "en-US"
+        ? "You are in offline mode. This report was not sent to the care team panel."
+        : "Você está no modo offline. Este relato não foi enviado ao painel da equipe.";
+    return { text: `${guidance}\n\n${receipt}`, intent: "safety" as LiaIntent };
   }
   function acceptConsent() {
     try {
@@ -846,6 +865,23 @@ export function LiaPage({
           if (voice) void speak(assessment.text, id);
           return;
         }
+      }
+      const offlineReply = offlineSymptomReply(result.text);
+      if (offlineReply) {
+        setDraft("");
+        setReviewing(false);
+        setMessages((m) => [
+          ...m,
+          { id: ++sequence.current, role: "user", text: result.text },
+          {
+            id: ++sequence.current,
+            role: "assistant",
+            text: offlineReply.text,
+            intent: "safety",
+          },
+        ]);
+        if (voice) void speak(offlineReply.text, id);
+        return;
       }
       const preview = latest.current.appBridge.getSnapshot().connected
         ? undefined

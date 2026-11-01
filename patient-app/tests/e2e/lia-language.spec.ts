@@ -50,7 +50,7 @@ async function prepareEnglishVoice(page: Page) {
     }),
   );
   await page.goto("/");
-  await page.getByRole("button", { name: "Explore demo", exact: true }).click();
+  await page.getByRole("button", { name: "Explore demo offline", exact: true }).click();
   await page
     .getByRole("button", { name: /Talk to Lia Say what you need to do/ })
     .click();

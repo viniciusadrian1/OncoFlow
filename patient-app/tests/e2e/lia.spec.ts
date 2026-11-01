@@ -155,6 +155,43 @@ test("leaving Lia cancels work and rejects a late chat response", async ({
   expect(await page.evaluate("window.testLia.cancelled")).toBeGreaterThan(0);
 });
 
+test("an offline typed symptom report receives guidance without a model or a delivery claim", async ({
+  page,
+}) => {
+  await mockLiveProviders(page);
+  await openLia(page);
+  await page.getByRole("button", { name: "Entendi, ativar a Lia" }).click();
+  await page.getByLabel("Ouvir as respostas da Lia").uncheck();
+  await page
+    .getByLabel("Mensagem para a Lia")
+    .fill("Estou com náusea, febre e vômito");
+  await page.getByRole("button", { name: "Enviar mensagem" }).click();
+  const answer = page.getByTestId("lia-answer").last();
+  await expect(answer).toContainText("serviço de oncologia agora");
+  await expect(answer).toContainText("não foi enviado ao painel da equipe");
+  await expect(answer).not.toContainText("Alerta registrado");
+  expect(await page.evaluate("window.testLia.chats")).toBe(0);
+});
+
+test("an offline recorded symptom receives guidance as soon as transcription completes", async ({
+  page,
+}) => {
+  await mockLiveProviders(page);
+  await openLia(page);
+  await page.getByRole("button", { name: "Entendi, ativar a Lia" }).click();
+  await page.getByLabel("Ouvir as respostas da Lia").uncheck();
+  await page.evaluate(
+    "window.testLia.transcript='Estou com náusea, febre e vômito'",
+  );
+  await page.getByRole("button", { name: "Gravar mensagem" }).click();
+  await page.getByRole("button", { name: "Concluir gravação" }).click();
+  const answer = page.getByTestId("lia-answer").last();
+  await expect(answer).toContainText("serviço de oncologia agora");
+  await expect(answer).toContainText("não foi enviado ao painel da equipe");
+  await expect(page.getByLabel("Mensagem para a Lia")).toHaveValue("");
+  expect(await page.evaluate("window.testLia.chats")).toBe(0);
+});
+
 test("Lia is usable at 200% text and resets conversation on persona change", async ({
   page,
 }) => {

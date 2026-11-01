@@ -867,7 +867,7 @@ export function App() {
             </p>
           )}
           <button className="secondary full" onClick={start}>
-            {t("Explorar demonstração ")}
+            {t("Explorar demonstração offline")}
             <ArrowRight size={20} />
           </button>
           <p className="welcome-foot">
@@ -1496,7 +1496,7 @@ export function App() {
                 <RowButton
                   icon={Info}
                   title={t("Sobre esta versão")}
-                  description={t("OncoFlow Paciente · 0.13.0")}
+                  description={t("OncoFlow Paciente · 0.14.0")}
                   onClick={() => setModal({ type: "help" })}
                 />
                 <p className="footnote">
@@ -2022,7 +2022,7 @@ export function App() {
                     : "Não há atendimento, monitoramento clínico ou envio de mensagens a profissionais. ",
                 )}
               </p>
-              <Tag>{t("VERSÃO 0.13.0 · DEMONSTRAÇÃO")}</Tag>
+              <Tag>{t("VERSÃO 0.14.0 · DEMONSTRAÇÃO")}</Tag>
             </>
           )}
         </Sheet>

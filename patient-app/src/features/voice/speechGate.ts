@@ -26,7 +26,9 @@ export type SpeechGate = {
 export const SPEECH_GATE_SETTINGS = {
   positiveSpeechThreshold: 0.75,
   negativeSpeechThreshold: 0.45,
-  minSpeechMs: 250,
+  // v5 evaluates 32ms frames. Require three positive frames so short words such
+  // as "não" can pass; a 250ms minimum could discard the whole word as a misfire.
+  minSpeechMs: 96,
   redemptionMs: 500,
   preSpeechPadMs: 300,
   delayMs: 850,

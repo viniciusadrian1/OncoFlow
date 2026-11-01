@@ -60,7 +60,79 @@ describe("connected symptoms before the model", () => {
     expect(result.kind).toBe("unconfirmed");
     expect(result.text).toContain("Não consegui confirmar");
     expect(result.text).toContain("atendimento");
+    expect(result.text).toMatch(/febre.*infecção/i);
+    expect(result.text).toMatch(/oncologia agora/i);
     expect(result.text).not.toContain("Alerta registrado");
+  });
+  it("preserves the care recommendation for the exact nausea, fever and vomiting report when offline", async () => {
+    const result = await checkConnectedSymptoms({
+      report: async () => {
+        throw new Error("offline");
+      },
+      input: { ...input, text: "Estou com náusea, febre e vômito." },
+      signal: new AbortController().signal,
+    });
+    expect(result.kind).toBe("unconfirmed");
+    expect(result.text).toMatch(/oncologia agora/i);
+    expect(result.text).toMatch(/pronto atendimento/i);
+    expect(result.text).toMatch(/não espere/i);
+    expect(result.text).not.toMatch(
+      /alerta registrado|enviado com sucesso|somente uma demonstração/i,
+    );
+  });
+  it("does not imply fever or infection when the affirmed symptom is vomiting alone", async () => {
+    const result = await checkConnectedSymptoms({
+      report: async () => {
+        throw new Error("offline");
+      },
+      input: { ...input, text: "Estou vomitando e sem febre." },
+      signal: new AbortController().signal,
+    });
+    expect(result.kind).toBe("unconfirmed");
+    expect(result.text).toMatch(/oncologia agora/i);
+    expect(result.text).not.toMatch(/febre|infecção/i);
+  });
+  it("does not turn negated, hypothetical, educational, past or another person's symptoms into a fallback report", async () => {
+    for (const text of [
+      "Não tenho náusea, febre nem vômito.",
+      "Estou com náusea, sem febre nem vômitos.",
+      "Se eu estiver com náusea, febre e vômito, o que faço?",
+      "Minha mãe está com náusea, febre e vômito.",
+      "Tenho uma dúvida sobre náusea, febre e vômito.",
+      "Ontem eu estava com náusea, febre e vômito.",
+      "I do not have nausea, fever or vomiting.",
+      "My mother has nausea, fever and vomiting.",
+      "Estou com náusea, febre não.",
+      "Tenho enjoo e febre não.",
+    ]) {
+      const result = await checkConnectedSymptoms({
+        report: async () => {
+          throw new Error("offline");
+        },
+        input: { ...input, text },
+        signal: new AbortController().signal,
+      });
+      expect(result, text).toEqual({ kind: "not_applicable" });
+    }
+  });
+  it("keeps care-seeking guidance for configured bleeding and breathing reports when delivery cannot be confirmed", async () => {
+    for (const text of [
+      "Estou tossindo sangue.",
+      "Estou com sangue na urina.",
+      "Estou com dificuldade de respirar.",
+      "Agora não consigo respirar.",
+      "Agora não aguento mais.",
+    ]) {
+      const result = await checkConnectedSymptoms({
+        report: async () => { throw new Error("offline"); },
+        input: { ...input, text },
+        signal: new AbortController().signal,
+      });
+      expect(result.kind, text).toBe("unconfirmed");
+      expect(result.text, text).toMatch(/oncologia agora/i);
+      expect(result.text, text).toMatch(/pronto atendimento/i);
+      expect(result.text, text).not.toMatch(/alerta registrado/i);
+    }
   });
   it("bounds a stalled request and aborts its consumer without inventing an outcome", async () => {
     let dispatchedSignal: AbortSignal | undefined;

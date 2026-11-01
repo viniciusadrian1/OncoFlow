@@ -5,10 +5,53 @@ import {
   type SpeechGateEngine,
 } from "../../src/features/voice/speechGate";
 import type { RealTimeVADOptions } from "@ricky0123/vad-web";
+import {
+  FrameProcessor,
+  type FrameProcessorOptions,
+} from "@ricky0123/vad-web/dist/frame-processor";
+import { Message } from "@ricky0123/vad-web/dist/messages";
 
 const flush = async () => {
   for (let i = 0; i < 15; i++) await Promise.resolve();
 };
+
+// Exercise the installed VAD's temporal confirmation, with deterministic model
+// probabilities. These fixtures verify gating, not Silero's acoustic accuracy.
+async function processFrames(
+  options: Partial<RealTimeVADOptions>,
+  probabilities: number[],
+) {
+  let probability = 0;
+  const processor = new FrameProcessor(
+    async () => ({ isSpeech: probability, notSpeech: 1 - probability }),
+    () => {},
+    options as FrameProcessorOptions,
+    32,
+  );
+  processor.resume();
+  for (probability of probabilities) {
+    await processor.process(new Float32Array(512).fill(0.1), (event) => {
+      switch (event.msg) {
+        case Message.SpeechStart:
+          options.onSpeechStart?.();
+          break;
+        case Message.SpeechRealStart:
+          options.onSpeechRealStart?.();
+          break;
+        case Message.SpeechEnd:
+          options.onSpeechEnd?.(event.audio);
+          break;
+        case Message.VADMisfire:
+          options.onVADMisfire?.();
+          break;
+        case Message.FrameProcessed:
+          options.onFrameProcessed?.(event.probs, event.frame);
+          break;
+      }
+    });
+    await vi.advanceTimersByTimeAsync(32);
+  }
+}
 function harness() {
   let options!: Partial<RealTimeVADOptions>;
   const delays: any[] = [];
@@ -86,6 +129,42 @@ function harness() {
 afterEach(() => vi.useRealTimers());
 
 describe("local neural speech gate", () => {
+  it("preserves a short confirmed word instead of discarding it as a click", async () => {
+    vi.useFakeTimers();
+    const h = harness();
+    const gate = await createSpeechGate(
+      h.raw,
+      h.callbacks,
+      h.abort.signal,
+      h.environment,
+    );
+    // Four v5 frames = 128ms, enough for a short spoken negation. Previously
+    // seven positive frames were required, so this entire word was silenced.
+    await processFrames(h.options(), [0.9, 0.9, 0.9, 0.9]);
+    expect(h.gain.gain.setValueAtTime).toHaveBeenLastCalledWith(1, 0);
+    gate.close();
+  });
+
+  it("still rejects a single positive click surrounded by fan noise", async () => {
+    vi.useFakeTimers();
+    const h = harness();
+    const gate = await createSpeechGate(
+      h.raw,
+      h.callbacks,
+      h.abort.signal,
+      h.environment,
+    );
+    await processFrames(h.options(), [
+      ...Array(20).fill(0.08),
+      0.95,
+      ...Array(20).fill(0.08),
+    ]);
+    expect(
+      h.gain.gain.setValueAtTime.mock.calls.some(([value]) => value > 0),
+    ).toBe(false);
+    gate.close();
+  });
+
   it("loads local v5 assets with one WASM thread and preserves ownership of raw tracks", async () => {
     const h = harness();
     const gate = await createSpeechGate(

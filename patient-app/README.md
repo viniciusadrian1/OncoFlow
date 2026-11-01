@@ -1,4 +1,4 @@
-# OncoFlow Paciente 0.13.0
+# OncoFlow Paciente 0.14.0
 
 Este diretório é a fonte do aplicativo do paciente no repositório `viniciusadrian1/OncoFlow`. O painel e o aplicativo compartilham o serviço e os dados fictícios. A versão Android usa `versionCode 15` e inclui o endereço publicado para conexão direta. Não é necessário importar ou sincronizar outro repositório para desenvolver esta aplicação.
 
@@ -69,6 +69,6 @@ npm run build
 
 Os testes de descoberta e entrada usam respostas controladas de GitHub e do serviço; não publicam um deployment, não chamam provedores e não consomem créditos. A regressão inclui a entrada em um toque, indisponibilidade com modo offline, troca de paciente, escopo da sessão e ausência de tokens no armazenamento.
 
-Para preparar o Android, use `npm run android:sync` e `npm run apk:debug` com SDK/JDK configurados. O script exporta `../output/apk/OncoFlow-Paciente-demo-v0.13.0.apk`, com a conexão direta ao painel. O arquivo e as chaves ficam fora do Git. A assinatura de desenvolvimento permite atualizar a instalação anterior feita com a mesma chave.
+Para preparar o Android, use `npm run android:sync` e `npm run apk:debug` com SDK/JDK configurados. O script exporta `../output/apk/OncoFlow-Paciente-demo-v0.14.0.apk`, com a conexão direta ao painel. O arquivo e as chaves ficam fora do Git. A assinatura de desenvolvimento permite atualizar a instalação anterior feita com a mesma chave.
 
 Os relatórios anteriores em `docs/verification-*.md` são históricos. Seus resultados de emulador, voz ou API não comprovam uma nova publicação, um novo APK ou o funcionamento atual de um provedor.

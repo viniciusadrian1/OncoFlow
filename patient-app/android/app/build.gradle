@@ -26,13 +26,13 @@ android {
         applicationId "br.com.oncoflow.paciente"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 15
-        versionName "0.13.0"
+        versionCode 16
+        versionName "0.14.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField 'String', 'OPENAI_API_KEY', javaString(liaValue('OPENAI_API_KEY', ''))
         buildConfigField 'String', 'ELEVENLABS_API_KEY', javaString(liaValue('ELEVENLABS_API_KEY', ''))
         buildConfigField 'String', 'OPENAI_LLM_MODEL', javaString(liaValue('OPENAI_LLM_MODEL', 'gpt-4o'))
-        buildConfigField 'String', 'OPENAI_STT_MODEL', javaString(liaValue('OPENAI_STT_MODEL', 'gpt-4o-mini-transcribe'))
+        buildConfigField 'String', 'OPENAI_STT_MODEL', javaString(liaValue('OPENAI_STT_MODEL', 'gpt-4o-transcribe'))
         buildConfigField 'String', 'ELEVENLABS_TTS_MODEL', javaString(liaValue('ELEVENLABS_TTS_MODEL', 'eleven_multilingual_v2'))
         buildConfigField 'String', 'ELEVENLABS_VOICE_ID', javaString(liaValue('ELEVENLABS_VOICE_ID', 'EXAVITQu4vr4xnSDxMaL'))
         buildConfigField 'String', 'ELEVENLABS_TTS_SPEED', javaString(liaValue('ELEVENLABS_TTS_SPEED', '0.95'))

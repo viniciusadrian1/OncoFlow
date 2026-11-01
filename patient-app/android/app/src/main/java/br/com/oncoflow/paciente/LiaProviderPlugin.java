@@ -187,8 +187,9 @@ public class LiaProviderPlugin extends Plugin {
             if (audio.length == 0 || audio.length > MAX_AUDIO_BYTES) throw invalid();
             String boundary = "OncoFlowBoundary" + java.util.UUID.randomUUID().toString().replace("-", "");
             ByteArrayOutputStream body = new ByteArrayOutputStream();
-            multipartText(body, boundary, "model", BuildConfig.OPENAI_STT_MODEL);
-            multipartText(body, boundary, "language", language(call));
+            for (Map.Entry<String, String> field : TranscriptionRequest.fileFields(BuildConfig.OPENAI_STT_MODEL, isEnglish(call)).entrySet()) {
+                multipartText(body, boundary, field.getKey(), field.getValue());
+            }
             body.write(("--" + boundary + "\r\nContent-Disposition: form-data; name=\"file\"; filename=\"lia-recording." + extension + "\"\r\nContent-Type: " + mime + "\r\n\r\n").getBytes(StandardCharsets.UTF_8));
             body.write(audio);
             body.write(("\r\n--" + boundary + "--\r\n").getBytes(StandardCharsets.UTF_8));
@@ -205,15 +206,7 @@ public class LiaProviderPlugin extends Plugin {
     @PluginMethod public void createTranscriptionSession(PluginCall call) {
         submit(call, (requestEpoch) -> {
             requireKey(BuildConfig.OPENAI_API_KEY);
-            JSONObject input = new JSONObject()
-                .put("noise_reduction", new JSONObject().put("type", "near_field"))
-                .put("transcription", new JSONObject().put("model", BuildConfig.OPENAI_STT_MODEL).put("language", language(call)))
-                .put("turn_detection", new JSONObject().put("type", "server_vad")
-                    .put("threshold", 0.5).put("silence_duration_ms", 600).put("prefix_padding_ms", 300));
-            JSONObject body = new JSONObject()
-                .put("expires_after", new JSONObject().put("anchor", "created_at").put("seconds", 60))
-                .put("session", new JSONObject().put("type", "transcription")
-                    .put("audio", new JSONObject().put("input", input)));
+            JSONObject body = new JSONObject(TranscriptionRequest.realtimeSession(BuildConfig.OPENAI_STT_MODEL, isEnglish(call)));
             JSONObject response = jsonRequest("https://api.openai.com/v1/realtime/client_secrets", body, requestEpoch);
             String clientSecret = response.optString("value", "");
             long expiresAt = response.optLong("expires_at", 0);

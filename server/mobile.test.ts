@@ -318,7 +318,7 @@ test('automatic symptom report is scoped, affirmative, atomic, durable and idemp
   let auth = await pair('pac-maria'); const jose = await pair('pac-001');
   const reports: any[] = [];
   await t.test('PT/EN affirmative fever/vomiting in text/voice need no extra confirmation and create exactly one shared review item', async () => {
-    for (const [index, text] of ['Estou vomitando e com febre agora.', 'Estou com febre e vômitos persistentes.', 'Não consigo parar de vomitar.', 'I have a fever and I am vomiting now.', 'O que fazer se tiver febre? Estou vomitando agora.', 'Tive febre ontem, hoje estou vomitando.', 'Tive febre ontem e hoje estou vomitando.', 'What should I do if I get fever? I am vomiting now.', 'I had a fever yesterday, and now I am vomiting.'].entries()) {
+    for (const [index, text] of ['Estou vomitando e com febre agora.', 'Estou com febre e vômitos persistentes.', 'Não consigo parar de vomitar.', 'I have a fever and I am vomiting now.', 'O que fazer se tiver febre? Estou vomitando agora.', 'Tive febre ontem, hoje estou vomitando.', 'Tive febre ontem e hoje estou vomitando.', 'What should I do if I get fever? I am vomiting now.', 'I had a fever yesterday, and now I am vomiting.', 'Estou com náusea, febre e vômito.'].entries()) {
       const source = index % 2 ? 'voice' : 'text'; const locale = index === 3 ? 'en-US' : 'pt-BR';
       const body = { text, source, locale, idempotencyKey: `auto-report-${index}` }; const headers = { ...auth, 'Idempotency-Key': body.idempotencyKey };
       const before = await proPatient(); const result = await call(scopePath() + '/symptom-reports', 'POST', body, headers);
@@ -331,7 +331,7 @@ test('automatic symptom report is scoped, affirmative, atomic, durable and idemp
       assert.deepEqual((await call(scopePath() + '/symptom-reports', 'POST', body, headers)).body.data, record);
       const after = await proPatient(); assert.equal(after.pendencias.length, before.pendencias.length + 1);
       const alert = after.pendencias.find((pe: any) => pe.id === record.alertId);
-      assert.equal(alert.falaLiteral, text); assert.equal(alert.origem, 'hipotese_sistema'); assert.equal(alert.estado, 'aberta'); assert.equal(alert.papelDestino, 'enfermagem');
+      assert.equal(alert.falaLiteral, text); assert.equal(alert.tipo, 'sinal_urgencia'); assert.equal(alert.origem, 'hipotese_sistema'); assert.equal(alert.estado, 'aberta'); assert.equal(alert.papelDestino, 'enfermagem');
       assert.equal(after.mensagens.filter((m: any) => m.autor === 'paciente' && m.texto === text).length, 1);
       assert.ok(!(await proPatient('pac-001')).pendencias.some((pe: any) => pe.id === record.alertId));
       const visible = (await call(scopePath() + '/messages', 'GET', undefined, auth)).body.data;
@@ -340,6 +340,15 @@ test('automatic symptom report is scoped, affirmative, atomic, durable and idemp
       assert.equal((await call(scopePath('pac-001') + '/symptom-reports', 'POST', body, headers)).status, 403);
       assert.equal((await call(scopePath() + '/symptom-reports', 'POST', { ...body, text: text + ' changed' }, headers)).status, 409);
     }
+  });
+  await t.test('vomiting with explicitly denied fever does not receive a fever-specific explanation', async () => {
+    const body = { text: 'Estou vomitando e sem febre.', source: 'voice', locale: 'pt-BR', idempotencyKey: 'auto-vomiting-no-fever' };
+    const result = await call(scopePath() + '/symptom-reports', 'POST', body, { ...auth, 'Idempotency-Key': body.idempotencyKey });
+    assert.equal(result.status, 200);
+    assert.equal(result.body.data.status, 'recorded');
+    assert.match(result.body.data.guidance, /avaliação agora/);
+    assert.doesNotMatch(result.body.data.guidance, /febre|infecção/i);
+    reports.push({ body, record: result.body.data });
   });
   await t.test('educational questions, hypothetical, historical, third party and negated mentions create no clinical records', async () => {
     const before = await proPatient();

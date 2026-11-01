@@ -166,7 +166,7 @@ test("an unpublished service leaves a normal unavailable message and a usable of
     page.getByLabel("Endereço do hospital", { exact: true }),
   ).toHaveCount(0);
   await page
-    .getByRole("button", { name: "Explorar demonstração", exact: true })
+    .getByRole("button", { name: "Explorar demonstração offline", exact: true })
     .click();
   await expect(
     page.getByRole("heading", { name: "Olá, Marina." }),

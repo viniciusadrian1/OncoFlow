@@ -20,6 +20,7 @@ async function mockConversation(page: Page) {
       inputMuted: false,
       muteChanges: [],
       failMicrophone: false,
+      failMute: false,
       holdChat: false,
       playbackTime: 0,
     };
@@ -102,7 +103,7 @@ async function mockConversation(page: Page) {
         s.handlers=handlers;s.sessions.push(handlers);
         s.sendTurn=(text=s.text)=>{handlers.onSpeechStart();handlers.onPartial(text);handlers.onSpeechEnd();handlers.onTranscript(text)};
         return {
-          setMuted(value){s.inputMuted=value;s.muteChanges.push(value)},
+          setMuted(value){s.inputMuted=value;s.muteChanges.push(value);if(value&&s.failMute)handlers.onError(new Error('Canal do microfone fechado'))},
           finishTurn(){s.commits++;handlers.onSpeechEnd()},
           close,
         };
@@ -393,6 +394,92 @@ test("mute preserves pending transcription, reasoning and playback through the s
   expect(await page.evaluate("window.testConversation.starts")).toBe(1);
   await endConversation(page);
 });
+
+for (const stage of ["thinking", "speaking"] as const) {
+  test(`a microphone error when muting during ${stage} lets Lia finish before reconnecting`, async ({
+    page,
+  }) => {
+    await openConversation(page);
+    await startConversation(page);
+    if (stage === "thinking") {
+      await page.evaluate(
+        "window.testConversation.holdChat=true;window.testConversation.sendTurn()",
+      );
+      await expect
+        .poll(() => page.evaluate("window.testConversation.chats"))
+        .toBe(1);
+    } else await sendTurn(page);
+    const dialog = page.getByTestId("voice-conversation");
+    await expect(dialog).toHaveAttribute("data-stage", stage);
+    const before = await page.evaluate(() => {
+      const s = (window as any).testConversation;
+      s.failMute = true;
+      return { cancels: s.cancels, pauses: s.pauses };
+    });
+    await page
+      .getByRole("button", { name: "Silenciar microfone", exact: true })
+      .click();
+    await expect(dialog).toHaveAttribute("data-muted", "true");
+    await expect(dialog).toHaveAttribute("data-stage", stage);
+    if (stage === "thinking") {
+      await page.evaluate("window.testConversation.releaseChat()");
+      await expect(dialog).toHaveAttribute("data-stage", "speaking");
+    }
+    expect(await page.evaluate("window.testConversation.cancels")).toBe(
+      before.cancels,
+    );
+    expect(await page.evaluate("window.testConversation.pauses")).toBe(
+      before.pauses,
+    );
+    await expect(page.getByTestId("lia-answer")).toHaveCount(2);
+    await finishPlayback(page, "error");
+    await expect(dialog.getByRole("alert")).toContainText(
+      "Canal do microfone fechado",
+    );
+    expect(await page.evaluate("window.testConversation.chats")).toBe(1);
+    await page.evaluate("window.testConversation.failMute=false");
+    await dialog
+      .getByRole("button", { name: "Tentar novamente", exact: true })
+      .click();
+    await expect(dialog).toHaveAttribute("data-stage", "speaking");
+    expect(await page.evaluate("window.testConversation.starts")).toBe(2);
+    await endConversation(page);
+  });
+}
+
+for (const scenarioEnabled of [false, true]) {
+  test(`an offline spoken symptom report gets care guidance before the model with scenario ${scenarioEnabled ? "enabled" : "disabled"}`, async ({
+    page,
+  }) => {
+    await openConversation(page);
+    if (scenarioEnabled) {
+      await page
+        .getByText("Explorar cenários fictícios", { exact: false })
+        .click();
+      await page
+        .getByLabel("Aplicar este cenário à conversa e à voz")
+        .check();
+    }
+    await startConversation(page);
+    await sendTurn(page, "Estou com náusea, febre e vômito");
+    const answer = page.getByTestId("lia-answer").last();
+    await expect(answer).toContainText("serviço de oncologia agora");
+    await expect(answer).toContainText("pronto atendimento");
+    await expect(answer).toContainText("não foi enviado ao painel da equipe");
+    await expect(answer).not.toContainText("Alerta registrado");
+    await expect(page.getByTestId("connected-symptom-status")).toHaveCount(0);
+    expect(await page.evaluate("window.testConversation.chats")).toBe(0);
+    await page
+      .getByRole("button", { name: "Silenciar microfone", exact: true })
+      .click();
+    await expect(page.getByTestId("voice-conversation")).toHaveAttribute(
+      "data-stage",
+      "speaking",
+    );
+    await finishPlayback(page, "muted");
+    await endConversation(page);
+  });
+}
 
 test("partial transcripts and input bars follow live input; manual finish commits the same turn", async ({
   page,
