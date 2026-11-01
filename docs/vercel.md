@@ -29,10 +29,19 @@ No modo Services, as opções de framework, instalação, build e funções fica
 | `patient-app` | `patient-app` | `npm run build:vercel` → `dist-service` | `/app/*`; `/app` redireciona para `/app/` |
 
 O build `app` compila o Pro e o servidor local em `dist/`, depois copia somente os arquivos públicos do Pro
-para `dist-static/`. `dist/server.cjs`, mapas e fontes do backend ficam fora desse diretório. A função
-`api/index.ts` pertence ao serviço `app` e executa a API sem `listen()`. As reescritas locais do serviço
+para `dist-static/`. `dist/server.cjs`, mapas e fontes do backend ficam fora desse diretório. O build também
+gera explicitamente o Build Output API v3: `.vercel/output/static` contém o Pro e
+`.vercel/output/functions/api/index.func` contém a função Node 24 com dependências incorporadas.
+Isso é necessário porque o builder Vite de Services não descobre sozinho arquivos soltos em `api/`;
+a seção `functions` do JSON não cria a função. A função `api/index.ts` executa a API sem `listen()`.
+As reescritas locais do serviço
 encaminham o caminho completo `/api/...` à função. O build do paciente guarda HTML, assets e VAD sob
 `dist-service/app/`, coincidindo com o prefixo público; o build Android continua relativo e separado.
+
+`npm run test:vercel:artifact` reconstrói e confere o pacote de produção e executa uma cópia isolada da
+função, sem `node_modules` do repositório. Sem Redis ela deve responder JSON 503, em vez do 404 da plataforma.
+O teste `vercel dev --local` sozinho não prova que a função foi incluída na publicação, pois usa o servidor
+Express de desenvolvimento. [Estrutura oficial de funções](https://vercel.com/docs/build-output-api/primitives).
 
 As rotas públicas usam `/app/(.*)` para incluir a barra final de `/app/`. Os fallbacks de páginas não
 reescrevem arquivos com extensão nem os módulos `@` do Vite. Isso evita devolver HTML onde o navegador
@@ -109,6 +118,10 @@ O APK consulta o registro de uma implantação **Production bem-sucedida** do re
 publicamente; um status ausente, protegido ou malsucedido é apresentado como indisponível.
 ([Status de implantação no GitHub](https://docs.github.com/en/rest/deployments/statuses)).
 
+Como alternativa quando a integração registra apenas o status do commit, `platform/mobile-config.json`
+guarda o endereço público confirmado `https://oncoflow-amber.vercel.app`. Não contém credenciais. A API
+desse endereço continua sendo validada antes de abrir uma sessão no APK.
+
 Ao trocar o domínio, mantenha a implantação Production e sua configuração canônica atualizadas. Novas
 entradas/reconexões consultam essa descoberta; não é necessário recompilar o APK nem digitar outro código
 para cada domínio. Se o provedor não publicar o registro GitHub, há um fallback opcional do desenvolvedor
@@ -146,6 +159,7 @@ Com Node 24 e npm, na raiz:
 ```sh
 npm ci
 npm run test:vercel
+npm run test:vercel:artifact
 npm run test:serverless
 npm run test:integration
 npm run build:vercel

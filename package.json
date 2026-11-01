@@ -19,6 +19,8 @@
     "test:platform": "node --test platform/sync-patient.test.mjs",
     "test:platform:smoke": "node platform/smoke.mjs",
     "test:vercel": "node --test platform/vercel.test.mjs",
+    "pretest:vercel:artifact": "npm run build:vercel",
+    "test:vercel:artifact": "node --test platform/vercel-artifact.test.mjs",
     "test:services:smoke": "node platform/services-smoke.mjs",
     "test:serverless": "tsx --test server/cloud.test.ts"
   },

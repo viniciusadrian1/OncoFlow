@@ -5,10 +5,15 @@ import type { UsuarioEquipe } from '../types';
 import { LogoOncoFlow } from './LogoOncoFlow';
 import { ROTULO_PAPEL } from './Pendencias';
 
-interface LoginViewProps { usuarios: UsuarioEquipe[]; onLogin: (usuario: UsuarioEquipe) => void; }
+interface LoginViewProps {
+  usuarios: UsuarioEquipe[];
+  onLogin: (usuario: UsuarioEquipe) => void;
+  status: 'loading' | 'ready' | 'error';
+  onRetry: () => void;
+}
 const ICONE_PAPEL = { medico: Stethoscope, enfermagem: HeartPulse, navegacao: Route };
 
-export const LoginView: React.FC<LoginViewProps> = ({ usuarios, onLogin }) => (
+export const LoginView: React.FC<LoginViewProps> = ({ usuarios, onLogin, status, onRetry }) => (
   <main className="login-page">
     <section className="login-story" aria-labelledby="titulo-oncoflow">
       <div className="login-brand"><LogoOncoFlow className="login-brand-logo" /><span className="pro-brand-badge">Pro</span></div>
@@ -31,7 +36,10 @@ export const LoginView: React.FC<LoginViewProps> = ({ usuarios, onLogin }) => (
         <h2 id="titulo-acesso">Welcome to<br />OncoFlow Pro.</h2>
         <p className="login-description">Choose a profile to explore the team workspace.</p>
         <div className="login-users">
-          {usuarios.length === 0 ? <p role="status">Loading profiles…</p> : usuarios.map((u) => {
+          {status === 'error' ? <div className="login-load-error" role="alert">
+            <p>We couldn't load the access profiles. The service is unavailable right now.</p>
+            <button type="button" onClick={onRetry}>Try again</button>
+          </div> : status === 'loading' ? <p role="status">Loading profiles…</p> : usuarios.map((u) => {
             const Icone = ICONE_PAPEL[u.papel];
             return <button key={u.id} type="button" id={`btn-entrar-${u.id}`} aria-label={`Sign in as ${u.nome}, ${ROTULO_PAPEL[u.papel]}`} onClick={() => onLogin(u)} className="login-user">
               <span className={`login-user-icon role-${u.papel}`}><Icone size={23} aria-hidden /></span>

@@ -1,5 +1,7 @@
 # Verificação Vercel Services — 31/10/2026
 
+Este relatório registra os testes iniciais de desenvolvimento. Eles não detectaram a ausência da função no pacote de produção do builder Vite. A causa e a correção com Build Output API explícito estão em [verification-production-api.md](verification-production-api.md).
+
 Base: `dc866dc`. O usuário confirmou a divisão em dois serviços e autorizou o envio das alterações à `main` do GitHub. A publicação na Vercel será feita por ele.
 
 ## Divisão aprovada

@@ -38,7 +38,7 @@ O [guia Vercel](docs/vercel.md) mostra variáveis, acesso público ao APK, desco
 | `api/index.ts` | Função Node para a Vercel |
 | `platform/` | Build, inicialização e verificações locais |
 
-Edite o aplicativo diretamente em `patient-app/`. Não sincronize automaticamente de uma pasta irmã antiga. Na raiz, `build:vercel` prepara somente os arquivos públicos do Pro em `dist-static`; no paciente, o comando de mesmo nome gera `dist-service/app`. O bundle e os mapas do servidor não entram na saída pública. Nenhuma credencial Redis ou de voz deve entrar no Git ou no frontend.
+Edite o aplicativo diretamente em `patient-app/`. Não sincronize automaticamente de uma pasta irmã antiga. Na raiz, `build:vercel` prepara os arquivos públicos do Pro em `dist-static` e gera o pacote explícito da função Node em `.vercel/output/functions/api/index.func`; o frontend vai para `.vercel/output/static`. No paciente, o comando de mesmo nome gera `dist-service/app`. O bundle e os mapas do servidor não entram na saída pública. Nenhuma credencial Redis ou de voz deve entrar no Git ou no frontend.
 
 Os dois clientes chamam `/api` no mesmo domínio. Não há chamada entre funções de serviços distintos que precise de binding. `backend/` e `frontend/` são uma arquitetura futura e não participam da publicação atual. Vercel Services está em Beta; confira o [guia e as decisões de roteamento](docs/vercel.md).
 
@@ -48,6 +48,7 @@ npm run test:integration
 npm run test:panel
 npm run test:platform
 npm run test:vercel
+npm run test:vercel:artifact
 npm run test:serverless
 npm --prefix patient-app test
 npm run build:vercel
@@ -62,3 +63,5 @@ local anterior continua disponível após `npm run build:platform`, com `npm run
 O [guia do app](patient-app/README.md) descreve entrada automática, Android e voz. As regras do produto estão em [CLAUDE.md](CLAUDE.md). Perfis e pacientes são fictícios; esta implementação ainda não é autenticação institucional nem prontuário de produção.
 
 Os resultados e limites dos testes desta preparação estão no [relatório de verificação](docs/verification-vercel.md).
+
+A correção do empacotamento da API e sua verificação com o builder oficial estão em [verification-production-api.md](docs/verification-production-api.md).

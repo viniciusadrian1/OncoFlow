@@ -37,6 +37,8 @@ function salvarUsuario(id: string | null): void {
 
 export default function App() {
   const [usuarios, setUsuarios] = useState<UsuarioEquipe[]>([]);
+  const [statusAcesso, setStatusAcesso] = useState<'loading' | 'ready' | 'error'>('loading');
+  const [tentativaAcesso, setTentativaAcesso] = useState(0);
   const [usuarioLogado, setUsuarioLogado] = useState<UsuarioEquipe | null>(null);
   const [pagina, setPagina] = useState<PaginaPro>('inicio');
   const [pacienteSelecionadoId, setPacienteSelecionadoId] = useState<string>('');
@@ -44,14 +46,23 @@ export default function App() {
   const [somenteSinais, setSomenteSinais] = useState(false);
 
   useEffect(() => {
-    chamarApi<{ usuarios: UsuarioEquipe[] }>('/api/demo/usuarios')
+    const controller = new AbortController();
+    setStatusAcesso('loading');
+    chamarApi<{ usuarios: UsuarioEquipe[] }>('/api/demo/usuarios', undefined, undefined, { signal: controller.signal })
       .then(({ usuarios: lista }) => {
+        if (controller.signal.aborted) return;
+        if (!Array.isArray(lista) || lista.length === 0) throw new Error('Access profiles unavailable.');
         setUsuarios(lista);
+        setStatusAcesso('ready');
         const salvo = lista.find((u) => u.id === lerUsuarioSalvo());
         if (salvo) setUsuarioLogado(salvo);
       })
-      .catch(() => setUsuarios([]));
-  }, []);
+      .catch(() => {
+        if (controller.signal.aborted) return;
+        setUsuarios([]); setStatusAcesso('error');
+      });
+    return () => controller.abort();
+  }, [tentativaAcesso]);
 
   const { estado, erro, acoes } = useEstadoPro(usuarioLogado);
   const pacientes = estado?.pacientes ?? [];
@@ -96,7 +107,7 @@ export default function App() {
   };
 
   if (!usuarioLogado) {
-    return <LoginView usuarios={usuarios} onLogin={entrar} />;
+    return <LoginView usuarios={usuarios} onLogin={entrar} status={statusAcesso} onRetry={() => setTentativaAcesso(value => value + 1)} />;
   }
 
   const listaEDetalhe = (limite?: number) => (
