@@ -174,7 +174,14 @@ export async function discoverDemoService(
       }
       throw new HospitalIntegrationError("server");
     }
-    // A revalidated canonical URL avoids consuming GitHub's anonymous API allowance on every entry.
+    // The published address is bundled from the repository's public configuration.
+    // A fresh APK can connect directly, without a GitHub request or a pairing code.
+    const publishedOrigin = import.meta.env.VITE_ONCOFLOW_SERVICE_ORIGIN;
+    if (typeof publishedOrigin === "string" && publishedOrigin) {
+      const service = await tryCandidate(publishedOrigin);
+      if (service) return service;
+    }
+    // A revalidated cache and repository discovery remain fallbacks if the domain changes.
     try {
       const cached = options.storage?.getItem(CACHE_KEY);
       if (cached) {

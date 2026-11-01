@@ -48,6 +48,17 @@ function harness(responses: Record<string, unknown>, cached?: string) {
 }
 
 describe("automatic public service discovery", () => {
+  it("connects the native app directly to the published panel without GitHub or a typed address", async () => {
+    const origin = "https://oncoflow-amber.vercel.app";
+    const h = harness({
+      [`${origin}/api/health`]: health,
+      [`${origin}/api/mobile/config`]: config(origin),
+    });
+    expect((await discoverDemoService({ native: true, fetch: h.fetcher, storage: h.storage })).origin).toBe(origin);
+    expect(h.requested).toEqual([`${origin}/api/health`, `${origin}/api/mobile/config`]);
+    expect([...h.values.values()]).toEqual([origin]);
+  });
+
   it("uses the hosted web origin and the server's canonical URL without GitHub or a typed address", async () => {
     const h = harness({
       "https://preview.example/api/health": health,
@@ -122,7 +133,8 @@ describe("automatic public service discovery", () => {
       h.requested.every(
         (url) =>
           url.startsWith("https://api.github.com/") ||
-          url.startsWith("https://raw.githubusercontent.com/"),
+          url.startsWith("https://raw.githubusercontent.com/") ||
+          url.startsWith("https://oncoflow-amber.vercel.app/"),
       ),
     ).toBe(true);
     expect(h.values.size).toBe(0);

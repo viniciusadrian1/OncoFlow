@@ -1,17 +1,16 @@
-# OncoFlow Paciente 0.12.0
+# OncoFlow Paciente 0.13.0
 
-Este diretório é a fonte do aplicativo do paciente no repositório `viniciusadrian1/OncoFlow`. O painel e o aplicativo compartilham o serviço e os dados fictícios. A versão Android usa `versionCode 14`. Não é necessário importar ou sincronizar outro repositório para desenvolver esta aplicação.
+Este diretório é a fonte do aplicativo do paciente no repositório `viniciusadrian1/OncoFlow`. O painel e o aplicativo compartilham o serviço e os dados fictícios. A versão Android usa `versionCode 15` e inclui o endereço publicado para conexão direta. Não é necessário importar ou sincronizar outro repositório para desenvolver esta aplicação.
 
 ## Entrada
 
 Toque em **Entrar no app**. O serviço escolhe o paciente fictício padrão, atualmente Maria, e fornece a identidade da sessão. Não há endereço ou código para digitar nesse fluxo. Em **Perfil → Perfil fictício conectado**, é possível escolher outro paciente da lista fornecida pelo serviço. A troca encerra a sessão anterior e cancela suas operações pendentes.
 
-No navegador, a aplicação publicada em `/app/` usa a origem da própria página. No Android, ela localiza a publicação pelo repositório público do GitHub:
+No navegador, a aplicação publicada em `/app/` usa a origem da própria página. No Android, a entrada usa diretamente `https://oncoflow-amber.vercel.app`. Somente esse endereço público de `platform/mobile-config.json` é incorporado pelo Vite, sem chaves dos fornecedores:
 
-1. Revalida o endereço público canônico em cache, quando disponível.
-2. Consulta `GET /repos/viniciusadrian1/OncoFlow/deployments?environment=Production&per_page=10` e o **último** status de cada deployment. Somente um último status `success` pode fornecer o endereço.
-3. Valida `/api/health` e `/api/mobile/config`. Se a publicação aponta para outro `serviceUrl` canônico, valida essa origem separadamente antes de criar uma sessão.
-4. Consulta a lista pública de pacientes fictícios e solicita `/api/mobile/demo-session` para o paciente selecionado pelo serviço ou pelo controle de Perfil.
+1. Valida `/api/health` e `/api/mobile/config` diretamente no endereço publicado. Se o serviço aponta para outro `serviceUrl` canônico, valida essa origem separadamente antes de criar uma sessão.
+2. Consulta a lista pública de pacientes fictícios e solicita `/api/mobile/demo-session` para o paciente selecionado pelo serviço ou pelo controle de Perfil.
+3. Se o endereço estiver indisponível, mantém como alternativas o cache validado e a descoberta pelo repositório GitHub, incluindo seu arquivo público de configuração. Esses caminhos permitem atualizar a publicação sem pedir endereço ou código ao paciente.
 
 O aplicativo não inventa um domínio. Sem publicação acessível, mostra **O serviço está indisponível no momento** e mantém **Explorar demonstração** disponível. A descoberta só começa quando a pessoa toca em Entrar; abrir a tela inicial não consulta GitHub nem o serviço.
 
@@ -19,7 +18,7 @@ O aplicativo não inventa um domínio. Sem publicação acessível, mostra **O s
 
 ## Publicação e configuração
 
-O guia de publicação está em [docs/vercel.md](../docs/vercel.md). Na raiz do repositório, `npm run build:vercel` prepara o painel, o serviço e os arquivos de `/app/`. Publicar na Vercel é uma ação separada; este código não exige nem executa uma publicação real durante os testes.
+O guia de publicação está em [docs/vercel.md](../docs/vercel.md). Na raiz do repositório, `npm run build:vercel` prepara o painel e a função da API. Neste diretório, `npm run build:vercel` prepara o serviço web em `/app/`. Os builds e os testes unitários não fazem publicações.
 
 Para habilitar a entrada de apresentação, o serviço precisa de `ONCOFLOW_DEMO_AUTO_CONNECT=true`. Essa opção é exclusivamente para dados fictícios: permite listar e abrir sessões dos pacientes da demonstração. O backend controla o paciente padrão, a lista e a emissão dos tokens. Na nuvem, a persistência Redis configurada pelo guia é obrigatória; o serviço responde indisponível se ela não estiver pronta.
 
@@ -70,6 +69,6 @@ npm run build
 
 Os testes de descoberta e entrada usam respostas controladas de GitHub e do serviço; não publicam um deployment, não chamam provedores e não consomem créditos. A regressão inclui a entrada em um toque, indisponibilidade com modo offline, troca de paciente, escopo da sessão e ausência de tokens no armazenamento.
 
-Para preparar uma compilação Android posteriormente, use `npm run android:sync` e `npm run apk:debug` com SDK/JDK configurados. O script nomeia a saída `OncoFlow-Paciente-demo-v0.12.0.apk`; nenhum novo APK é necessário para a entrega do código preparado para publicação.
+Para preparar o Android, use `npm run android:sync` e `npm run apk:debug` com SDK/JDK configurados. O script exporta `../output/apk/OncoFlow-Paciente-demo-v0.13.0.apk`, com a conexão direta ao painel. O arquivo e as chaves ficam fora do Git. A assinatura de desenvolvimento permite atualizar a instalação anterior feita com a mesma chave.
 
 Os relatórios anteriores em `docs/verification-*.md` são históricos. Seus resultados de emulador, voz ou API não comprovam uma nova publicação, um novo APK ou o funcionamento atual de um provedor.

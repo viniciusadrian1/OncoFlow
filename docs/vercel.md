@@ -112,15 +112,14 @@ No navegador, abra `/app/` no domínio publicado e toque em **Entrar no app**. O
 da página e consulta os pacientes fictícios fornecidos pelo servidor. É uma prévia visual conectada; a
 conversa de voz com os fornecedores está disponível no APK nativo.
 
-O APK consulta o registro de uma implantação **Production bem-sucedida** do repositório público
-`viniciusadrian1/OncoFlow` no GitHub, verifica a API e usa o endereço canônico retornado em
-`GET /api/mobile/config`. O registro precisa estar publicado pela integração Vercel/GitHub e visível
-publicamente; um status ausente, protegido ou malsucedido é apresentado como indisponível.
-([Status de implantação no GitHub](https://docs.github.com/en/rest/deployments/statuses)).
+O APK 0.13.0 contém o endereço público de `platform/mobile-config.json` e valida diretamente a API antes
+de abrir uma sessão. A configuração atual é `https://oncoflow-amber.vercel.app`; não exige consulta ao
+GitHub, endereço digitado ou código no caminho principal. Somente a URL pública é incorporada ao frontend.
 
-Como alternativa quando a integração registra apenas o status do commit, `platform/mobile-config.json`
-guarda o endereço público confirmado `https://oncoflow-amber.vercel.app`. Não contém credenciais. A API
-desse endereço continua sendo validada antes de abrir uma sessão no APK.
+Se essa origem estiver indisponível, o cache validado e a descoberta GitHub continuam como alternativas,
+incluindo o último status `success` de uma implantação Production e o arquivo público de configuração.
+Esse arquivo também atende ao APK 0.12.0, que começa pela descoberta GitHub.
+([Status de implantação no GitHub](https://docs.github.com/en/rest/deployments/statuses)).
 
 Ao trocar o domínio, mantenha a implantação Production e sua configuração canônica atualizadas. Novas
 entradas/reconexões consultam essa descoberta; não é necessário recompilar o APK nem digitar outro código

@@ -1,2 +1,3 @@
 import { defineConfig } from "vitest/config";
-export default defineConfig({ test: { include: ["tests/unit/**/*.test.ts"] } });
+import viteConfig from "./vite.config.ts";
+export default defineConfig({ define: viteConfig.define, test: { include: ["tests/unit/**/*.test.ts"] } });

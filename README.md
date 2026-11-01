@@ -4,7 +4,7 @@ Cada etapa do cuidado, conectada. Uma demonstração com dados fictícios reúne
 
 O Pro acompanha a jornada, revisa relatos e solicitações e publica agenda, orientações e documentos. O paciente consulta os mesmos dados, pede apoio e conversa com a Lia no APK Android. Relatos de sintomas são registrados para revisão profissional, com fala literal e origem; a IA não define prioridade clínica nem altera tratamento.
 
-O fluxo principal é **Entrar no app**: a prévia web usa o próprio domínio e o APK descobre a implantação Production deste [repositório](https://github.com/viniciusadrian1/OncoFlow). A sessão fica restrita ao paciente fictício escolhido. O pareamento manual permanece nas opções avançadas.
+O fluxo principal é **Entrar no app**: a prévia web usa o próprio domínio e o APK 0.13.0 acessa diretamente `https://oncoflow-amber.vercel.app`, com o endereço público definido neste repositório. A descoberta GitHub permanece como alternativa se o domínio mudar. A sessão fica restrita ao paciente fictício escolhido. O pareamento manual permanece nas opções avançadas.
 
 A voz com os fornecedores funciona no **APK nativo**. `/app/` oferece a prévia visual conectada sem esses fornecedores. A correção de silenciar preserva o estado do microfone quando uma resposta antiga interrompida termina; falhas de síntese mantêm o texto disponível e a conexão de escuta ativa.
 

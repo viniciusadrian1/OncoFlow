@@ -3,7 +3,7 @@ import { registerTranslations } from "../i18n";
 registerTranslations("en-US", {
   "A sessão fica aberta enquanto você usa o app. Ao reiniciar, toque em Entrar no app novamente.":
     "The session stays open while you use the app. After restarting, tap Enter app again.",
-  "VERSÃO 0.12.0 · DEMONSTRAÇÃO": "VERSION 0.12.0 · DEMO",
+  "VERSÃO 0.13.0 · DEMONSTRAÇÃO": "VERSION 0.13.0 · DEMO",
   "Entrar no app": "Enter app",
   "Entrando…": "Entering…",
   "Conexão avançada": "Advanced connection",
@@ -14,7 +14,7 @@ registerTranslations("en-US", {
     "Offline mode with fictional profiles. You can switch profiles in My profile.",
   "Dados fictícios. Ao entrar no app, registros e sinais configurados são compartilhados com o painel conectado. No modo offline, tudo fica neste aparelho.":
     "Fictional data. When you enter the app, check-ins and configured signs are shared with the connected panel. In offline mode, everything stays on this device.",
-  "OncoFlow Paciente · 0.12.0": "OncoFlow Patient · 0.12.0",
+  "OncoFlow Paciente · 0.13.0": "OncoFlow Patient · 0.13.0",
   "Relatos de sintomas na Lia são verificados pelo serviço e sinais de atenção são enviados automaticamente ao painel conectado para revisão profissional. O registro não significa que alguém já leu. Não há monitoramento de urgência real: procure atendimento sem esperar pelo aplicativo. Os cenários de demonstração abaixo continuam locais.":
     "Symptom reports made to Lia are checked by the service, and signs requiring attention are sent automatically to the connected panel for professional review. A stored record does not mean someone has read it. There is no real emergency monitoring: seek care without waiting for the app. The demo scenarios below remain local.",
   "As orientações completas estão no Perfil e nos documentos publicados.":
