@@ -41,6 +41,55 @@ const completed = (id: string, transcript = id) =>
   });
 
 describe("transcription item routing", () => {
+  it("keeps the active pre-mute item before the server reports speech end", () => {
+    const h = handlers(),
+      router = createTranscriptionEvents(h);
+    router.receive(started("captured"));
+    router.setMuted(true);
+    router.receive(started("muted-noise"));
+    router.receive(completed("muted-noise", "Estou com febre"));
+    router.receive(event("input_audio_buffer.speech_stopped", "captured"));
+    router.receive(completed("captured", "Não estou com febre nem vomitando."));
+    router.receive(completed("captured", "Duplicado"));
+    expect(h.onTranscript).toHaveBeenCalledExactlyOnceWith(
+      "Não estou com febre nem vomitando.",
+    );
+  });
+
+  it("associates one delayed server item with confirmed pre-mute local audio", () => {
+    const h = handlers(),
+      router = createTranscriptionEvents(h);
+    router.setMuted(true, true);
+    router.receive(started("buffered-before-mute"));
+    router.receive(started("other-muted-item"));
+    router.receive(completed("other-muted-item", "Ruído"));
+    router.receive(
+      event("input_audio_buffer.committed", "buffered-before-mute"),
+    );
+    router.receive(completed("buffered-before-mute", "Não."));
+    expect(h.onTranscript).toHaveBeenCalledExactlyOnceWith("Não.");
+  });
+
+  it("an ignored muted commit cannot consume the pending manual acknowledgement", () => {
+    const h = handlers(),
+      router = createTranscriptionEvents(h);
+    router.receive(started("captured"));
+    router.setMuted(true);
+    router.expectManualCommit();
+    router.receive(started("muted-noise"));
+    router.receive(event("input_audio_buffer.committed", "muted-noise"));
+    router.receive(completed("muted-noise", "Ruído"));
+    router.receive(
+      event("input_audio_buffer.committed", "manual-captured", {
+        previous_item_id: null,
+      }),
+    );
+    router.receive(completed("manual-captured", "Não estou com febre."));
+    expect(h.onTranscript).toHaveBeenCalledExactlyOnceWith(
+      "Não estou com febre.",
+    );
+  });
+
   it("delivers a completed negated statement verbatim instead of inferring symptoms", () => {
     const h = handlers(),
       router = createTranscriptionEvents(h);
@@ -129,8 +178,8 @@ describe("transcription item routing", () => {
   it("does not replay a muted utterance after unmuting or accept unknown completed IDs", () => {
     const h = handlers(),
       router = createTranscriptionEvents(h);
-    router.receive(started("muted"));
     router.setMuted(true);
+    router.receive(started("muted"));
     router.setMuted(false);
     router.receive(completed("muted"));
     router.receive(completed("unknown"));
@@ -169,6 +218,7 @@ function transportSetup() {
     stream: stream as unknown as MediaStream,
     setMuted: vi.fn(),
     close: vi.fn(),
+    hasPendingSpeech: vi.fn(() => false),
   });
   const channel = {
     readyState: "open",
@@ -220,6 +270,160 @@ function transportSetup() {
 }
 
 describe("realtime input lifecycle", () => {
+  it("mutes before remote speech start, drains captured audio and commits that one turn", async () => {
+    vi.useFakeTimers();
+    const t = transportSetup();
+    const gate = {
+      stream: t.stream as unknown as MediaStream,
+      setMuted: vi.fn(),
+      close: vi.fn(),
+      hasPendingSpeech: () => true,
+    };
+    vi.mocked(createSpeechGate).mockResolvedValue(gate);
+    const connecting = connectRealtimeInput(t.h, new AbortController().signal);
+    await flush();
+    t.message({ type: "session.created" });
+    const input = await connecting;
+    expect(input.hasPendingSpeech?.()).toBe(true);
+    input.setMuted(true);
+    expect(t.track.enabled).toBe(false);
+    expect(t.channel.send).not.toHaveBeenCalled();
+    await vi.advanceTimersByTimeAsync(1849);
+    expect(t.channel.send).not.toHaveBeenCalled();
+    await vi.advanceTimersByTimeAsync(1);
+    expect(t.channel.send).toHaveBeenCalledExactlyOnceWith(
+      JSON.stringify({ type: "input_audio_buffer.commit" }),
+    );
+    t.message(
+      event("input_audio_buffer.committed", "drained", {
+        previous_item_id: null,
+      }),
+    );
+    t.message(completed("drained", "Não estou vomitando."));
+    t.message(started("muted-noise"));
+    t.message(completed("muted-noise"));
+    expect(t.h.onTranscript).toHaveBeenCalledExactlyOnceWith(
+      "Não estou vomitando.",
+    );
+    input.close();
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it("preserves an active speech item on mute without clearing its buffer", async () => {
+    vi.useFakeTimers();
+    const t = transportSetup();
+    const connecting = connectRealtimeInput(t.h, new AbortController().signal);
+    await flush();
+    t.message({ type: "session.created" });
+    const input = await connecting;
+    t.message(started("captured"));
+    expect(input.hasPendingSpeech?.()).toBe(true);
+    input.setMuted(true);
+    expect(t.channel.send).not.toHaveBeenCalled();
+    t.message(event("input_audio_buffer.speech_stopped", "captured"));
+    await vi.advanceTimersByTimeAsync(2000);
+    expect(t.channel.send).not.toHaveBeenCalled();
+    t.message(completed("captured", "Quero ver minha agenda."));
+    expect(t.h.onTranscript).toHaveBeenCalledExactlyOnceWith(
+      "Quero ver minha agenda.",
+    );
+    input.close();
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it("lets delayed server VAD finish the full muted utterance before the commit fallback", async () => {
+    vi.useFakeTimers();
+    const t = transportSetup();
+    const connecting = connectRealtimeInput(t.h, new AbortController().signal);
+    await flush();
+    t.message({ type: "session.created" });
+    const input = await connecting;
+    t.message(started("captured"));
+    input.setMuted(true);
+    expect(t.track.enabled).toBe(false);
+    // Audio needs 850ms to leave the local delay, then the service needs its
+    // configured 600ms of silence plus transport time to report the natural end.
+    await vi.advanceTimersByTimeAsync(1600);
+    expect(t.channel.send).not.toHaveBeenCalled();
+    t.message(event("input_audio_buffer.speech_stopped", "captured"));
+    t.message(event("input_audio_buffer.committed", "captured"));
+    t.message(completed("captured", "Estou com náusea, febre e vômito agora."));
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(t.channel.send).not.toHaveBeenCalled();
+    expect(t.h.onTranscript).toHaveBeenCalledExactlyOnceWith(
+      "Estou com náusea, febre e vômito agora.",
+    );
+    input.close();
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it("coalesces manual finish and repeated mute into one commit and rejects muted noise before the final", async () => {
+    vi.useFakeTimers();
+    const t = transportSetup();
+    const connecting = connectRealtimeInput(t.h, new AbortController().signal);
+    await flush();
+    t.message({ type: "session.created" });
+    const input = await connecting;
+    t.message(started("captured"));
+    input.finishTurn();
+    await vi.advanceTimersByTimeAsync(100);
+    input.setMuted(true);
+    input.setMuted(true);
+    input.finishTurn();
+    await vi.advanceTimersByTimeAsync(1849);
+    expect(t.channel.send).not.toHaveBeenCalled();
+    await vi.advanceTimersByTimeAsync(1);
+    expect(t.channel.send).toHaveBeenCalledExactlyOnceWith(
+      JSON.stringify({ type: "input_audio_buffer.commit" }),
+    );
+    t.message(started("muted-noise"));
+    t.message(event("input_audio_buffer.committed", "muted-noise"));
+    t.message(completed("muted-noise", "Ruído"));
+    t.message(event("input_audio_buffer.committed", "captured"));
+    t.message(completed("captured", "Não estou com febre."));
+    expect(t.h.onTranscript).toHaveBeenCalledExactlyOnceWith(
+      "Não estou com febre.",
+    );
+    await vi.advanceTimersByTimeAsync(2000);
+    expect(t.channel.send).toHaveBeenCalledTimes(1);
+    input.close();
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it("unmute cancels the mute commit while retaining the already captured transcript", async () => {
+    vi.useFakeTimers();
+    const t = transportSetup();
+    const connecting = connectRealtimeInput(t.h, new AbortController().signal);
+    await flush();
+    t.message({ type: "session.created" });
+    const input = await connecting;
+    t.message(started("captured"));
+    input.setMuted(true);
+    input.setMuted(false);
+    expect(t.track.enabled).toBe(true);
+    await vi.advanceTimersByTimeAsync(2000);
+    expect(t.channel.send).not.toHaveBeenCalled();
+    t.message(event("input_audio_buffer.speech_stopped", "captured"));
+    t.message(completed("captured", "Minha agenda."));
+    expect(t.h.onTranscript).toHaveBeenCalledExactlyOnceWith("Minha agenda.");
+    input.close();
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it("close cancels a pending mute commit before any delayed audio can revive the call", async () => {
+    vi.useFakeTimers();
+    const t = transportSetup();
+    const connecting = connectRealtimeInput(t.h, new AbortController().signal);
+    await flush();
+    t.message({ type: "session.created" });
+    const input = await connecting;
+    t.message(started("captured"));
+    input.setMuted(true);
+    input.close();
+    await vi.advanceTimersByTimeAsync(2000);
+    expect(t.channel.send).not.toHaveBeenCalled();
+    expect(vi.getTimerCount()).toBe(0);
+  });
   it("drains the delayed audio before manual commit and coalesces repeated taps", async () => {
     vi.useFakeTimers();
     const t = transportSetup();
@@ -238,7 +442,7 @@ describe("realtime input lifecycle", () => {
     );
     input.close();
   });
-  it.each(["mute", "close", "natural-end"])(
+  it.each(["close", "natural-end"])(
     "cancels pending manual commit on %s",
     async (action) => {
       vi.useFakeTimers();
@@ -252,8 +456,7 @@ describe("realtime input lifecycle", () => {
       const input = await connecting;
       t.message(started("active"));
       input.finishTurn();
-      if (action === "mute") input.setMuted(true);
-      else if (action === "close") input.close();
+      if (action === "close") input.close();
       else t.message(event("input_audio_buffer.speech_stopped", "active"));
       await vi.advanceTimersByTimeAsync(SPEECH_GATE_SETTINGS.delayMs + 1000);
       expect(t.channel.send).not.toHaveBeenCalledWith(
@@ -269,7 +472,12 @@ describe("realtime input lifecycle", () => {
     const filtered = {
       getAudioTracks: () => [filteredTrack],
     } as unknown as MediaStream;
-    const gate = { stream: filtered, setMuted: vi.fn(), close: vi.fn() };
+    const gate = {
+      stream: filtered,
+      setMuted: vi.fn(),
+      close: vi.fn(),
+      hasPendingSpeech: () => false,
+    };
     vi.mocked(createSpeechGate).mockResolvedValue(gate);
     const connecting = connectRealtimeInput(t.h, new AbortController().signal);
     await flush();

@@ -18,6 +18,7 @@ async function mockConversation(page: Page) {
       histories: [],
       sessions: [],
       inputMuted: false,
+      pendingLocalSpeech: false,
       muteChanges: [],
       failMicrophone: false,
       failMute: false,
@@ -103,6 +104,7 @@ async function mockConversation(page: Page) {
         s.handlers=handlers;s.sessions.push(handlers);
         s.sendTurn=(text=s.text)=>{handlers.onSpeechStart();handlers.onPartial(text);handlers.onSpeechEnd();handlers.onTranscript(text)};
         return {
+          hasPendingSpeech(){return s.pendingLocalSpeech},
           setMuted(value){s.inputMuted=value;s.muteChanges.push(value);if(value&&s.failMute)handlers.onError(new Error('Canal do microfone fechado'))},
           finishTurn(){s.commits++;handlers.onSpeechEnd()},
           close,
@@ -394,6 +396,57 @@ test("mute preserves pending transcription, reasoning and playback through the s
   expect(await page.evaluate("window.testConversation.starts")).toBe(1);
   await endConversation(page);
 });
+
+for (const capture of ["remote-start", "local-buffer"] as const) {
+  test(`mute immediately after speech preserves the answer before remote speech-end (${capture})`, async ({
+    page,
+  }) => {
+    await openConversation(page);
+    await startConversation(page);
+    await page.evaluate(async (mode) => {
+      const s = (window as any).testConversation;
+      s.holdChat = true;
+      if (mode === "remote-start") {
+        s.handlers.onSpeechStart();
+        s.handlers.onPartial("Quando é minha próxima consulta?");
+      } else s.pendingLocalSpeech = true;
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    }, capture);
+    const before = await page.evaluate(() => {
+      const s = (window as any).testConversation;
+      return { cancels: s.cancels, pauses: s.pauses };
+    });
+    await page
+      .getByRole("button", { name: "Silenciar microfone", exact: true })
+      .click();
+    const dialog = page.getByTestId("voice-conversation");
+    await expect(dialog).toHaveAttribute("data-muted", "true");
+    await expect(dialog).toHaveAttribute("data-stage", "transcribing");
+    expect(await page.evaluate("window.testConversation.cancels")).toBe(
+      before.cancels,
+    );
+    expect(await page.evaluate("window.testConversation.pauses")).toBe(
+      before.pauses,
+    );
+    await page.evaluate((mode) => {
+      const s = (window as any).testConversation;
+      if (mode === "local-buffer") s.handlers.onSpeechStart();
+      s.handlers.onSpeechEnd();
+      s.pendingLocalSpeech = false;
+      s.handlers.onTranscript("Quando é minha próxima consulta?");
+    }, capture);
+    await expect(dialog).toHaveAttribute("data-stage", "thinking");
+    await page.evaluate(
+      "window.testConversation.handlers.onSpeechStart();window.testConversation.handlers.onTranscript('Nova fala silenciada');window.testConversation.releaseChat()",
+    );
+    await expect(dialog).toHaveAttribute("data-stage", "speaking");
+    await expect(page.getByTestId("lia-user-message")).toHaveCount(1);
+    expect(await page.evaluate("window.testConversation.chats")).toBe(1);
+    await finishPlayback(page, "muted");
+    expect(await page.evaluate("window.testConversation.starts")).toBe(1);
+    await endConversation(page);
+  });
+}
 
 for (const stage of ["thinking", "speaking"] as const) {
   test(`a microphone error when muting during ${stage} lets Lia finish before reconnecting`, async ({

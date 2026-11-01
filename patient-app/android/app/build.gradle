@@ -26,8 +26,8 @@ android {
         applicationId "br.com.oncoflow.paciente"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 16
-        versionName "0.14.0"
+        versionCode 17
+        versionName "0.15.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField 'String', 'OPENAI_API_KEY', javaString(liaValue('OPENAI_API_KEY', ''))
         buildConfigField 'String', 'ELEVENLABS_API_KEY', javaString(liaValue('ELEVENLABS_API_KEY', ''))

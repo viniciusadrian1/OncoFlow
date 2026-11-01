@@ -28,13 +28,13 @@ try {
   if ($LASTEXITCODE -ne 0) { throw 'APK signature verification failed.' }
 
   New-Item -ItemType Directory -Force -Path $outputDirectory | Out-Null
-  $exportedApk = Join-Path $outputDirectory 'OncoFlow-Paciente-demo-v0.14.0.apk'
+  $exportedApk = Join-Path $outputDirectory 'OncoFlow-Paciente-demo-v0.15.0.apk'
   Copy-Item -LiteralPath $builtApk -Destination $exportedApk -Force
   $hashAlgorithm = [System.Security.Cryptography.SHA256]::Create()
   $apkStream = [System.IO.File]::OpenRead($exportedApk)
   try { $checksum = [System.BitConverter]::ToString($hashAlgorithm.ComputeHash($apkStream)).Replace('-', '').ToLowerInvariant() }
   finally { $apkStream.Dispose(); $hashAlgorithm.Dispose() }
-  Set-Content -LiteralPath (Join-Path $outputDirectory 'SHA256SUMS-v0.14.0.txt') -Value "$checksum  OncoFlow-Paciente-demo-v0.14.0.apk" -Encoding ascii
+  Set-Content -LiteralPath (Join-Path $outputDirectory 'SHA256SUMS-v0.15.0.txt') -Value "$checksum  OncoFlow-Paciente-demo-v0.15.0.apk" -Encoding ascii
   Write-Output "APK: $exportedApk"
   Write-Output "SHA256: $checksum"
 } finally { Pop-Location }

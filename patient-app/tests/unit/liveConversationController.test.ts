@@ -49,6 +49,251 @@ function setup(overrides: Partial<Dependencies> = {}) {
 
 describe("live duplex conversation", () => {
   afterEach(() => vi.useRealTimers());
+  it("muting after captured speech preserves the turn before the remote speech-end event", async () => {
+    const answer = deferred<{ text: string }>();
+    const playback = deferred<void>();
+    const { controller, deps, sessions } = setup({
+      respond: vi.fn(() => answer.promise),
+      speak: vi.fn(() => playback.promise),
+    });
+    await controller.start();
+    const { handlers, input } = sessions[0];
+    handlers.onSpeechStart();
+    handlers.onPartial("Estou com náusea, febre e vômito");
+    await flush();
+    const stops = vi.mocked(deps.stopSpeaking).mock.calls.length;
+    const cancellations = vi.mocked(deps.cancelRequests).mock.calls.length;
+
+    await controller.setMuted(true);
+    expect(input.setMuted).toHaveBeenLastCalledWith(true);
+    expect(deps.onState).toHaveBeenLastCalledWith("transcribing");
+    expect(deps.stopSpeaking).toHaveBeenCalledTimes(stops);
+    expect(deps.cancelRequests).toHaveBeenCalledTimes(cancellations);
+    handlers.onSpeechEnd();
+    handlers.onTranscript("Estou com náusea, febre e vômito");
+    await flush();
+    expect(deps.onUserText).toHaveBeenCalledExactlyOnceWith(
+      "Estou com náusea, febre e vômito",
+    );
+    const signal = vi.mocked(deps.respond).mock.calls[0][1];
+    handlers.onSpeechStart();
+    handlers.onTranscript("Nova fala silenciada");
+    expect(signal.aborted).toBe(false);
+    answer.resolve({ text: "Entre em contato com seu serviço de oncologia." });
+    await flush();
+    expect(deps.speak).toHaveBeenCalledExactlyOnceWith(
+      "Entre em contato com seu serviço de oncologia.",
+      signal,
+    );
+    playback.resolve();
+    await flush();
+    expect(deps.onState).toHaveBeenLastCalledWith("muted");
+    expect(deps.respond).toHaveBeenCalledTimes(1);
+    expect(deps.connect).toHaveBeenCalledTimes(1);
+    await controller.stop();
+  });
+  it("bounds the pending transcript when mute precedes the remote speech-end event", async () => {
+    vi.useFakeTimers();
+    const { controller, deps, sessions } = setup();
+    await controller.start();
+    sessions[0].handlers.onSpeechStart();
+    await controller.setMuted(true);
+    await vi.advanceTimersByTimeAsync(14999);
+    expect(deps.onError).not.toHaveBeenCalled();
+    await vi.advanceTimersByTimeAsync(1);
+    expect(deps.onError).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({ message: expect.stringContaining("transcrição") }),
+    );
+    sessions[0].handlers.onSpeechEnd();
+    sessions[0].handlers.onTranscript("Uma conclusão atrasada");
+    await flush();
+    expect(deps.respond).not.toHaveBeenCalled();
+    expect(sessions[0].input.finishTurn).not.toHaveBeenCalled();
+    await controller.stop();
+    expect(vi.getTimerCount()).toBe(0);
+  });
+  it("publishes the muted flag together with the pending-transcription state", async () => {
+    const observed: { state: string; muted: boolean }[] = [];
+    let controller!: ReturnType<typeof createLiveConversationController>;
+    const result = setup({
+      onState: (state) => observed.push({ state, muted: controller.isMuted() }),
+    });
+    controller = result.controller;
+    await controller.start();
+    result.sessions[0].handlers.onSpeechStart();
+    await controller.setMuted(true);
+    expect(observed.at(-1)).toEqual({ state: "transcribing", muted: true });
+    await controller.stop();
+  });
+  it("preserves locally captured speech when mute precedes every remote speech event", async () => {
+    let handlers!: LiveInputHandlers;
+    const input = {
+      setMuted: vi.fn(),
+      hasPendingSpeech: () => true,
+      finishTurn: vi.fn(),
+      close: vi.fn(),
+    };
+    const { controller, deps } = setup({
+      connect: vi.fn(async (callbacks) => {
+        handlers = callbacks;
+        return input;
+      }),
+    });
+    await controller.start();
+    await controller.setMuted(true);
+    expect(deps.onState).toHaveBeenLastCalledWith("transcribing");
+    handlers.onSpeechStart();
+    handlers.onSpeechEnd();
+    handlers.onTranscript("Minha fala já estava capturada antes do mute");
+    await flush();
+    expect(deps.respond).toHaveBeenCalledExactlyOnceWith(
+      "Minha fala já estava capturada antes do mute",
+      expect.any(AbortSignal),
+    );
+    handlers.onTranscript("Uma nova fala enquanto silenciado");
+    await flush();
+    expect(deps.respond).toHaveBeenCalledTimes(1);
+    expect(deps.onState).toHaveBeenLastCalledWith("muted");
+    await controller.stop();
+  });
+  it.each(["thinking", "speaking"] as const)(
+    "finishing existing %s does not discard a second pre-mute captured utterance",
+    async (stage) => {
+      const firstAnswer = deferred<{ text: string }>();
+      const firstPlayback = deferred<void>();
+      let handlers!: LiveInputHandlers;
+      let localSpeechPending = false;
+      const input = {
+        setMuted: vi.fn(),
+        hasPendingSpeech: () => localSpeechPending,
+        finishTurn: vi.fn(),
+        close: vi.fn(),
+      };
+      const { controller, deps } = setup({
+        connect: vi.fn(async (callbacks) => {
+          handlers = callbacks;
+          return input;
+        }),
+        respond: vi
+          .fn(async () => ({ text: "Segunda resposta" }))
+          .mockImplementationOnce(() => firstAnswer.promise),
+        speak: vi.fn(() => firstPlayback.promise),
+      });
+      await controller.start();
+      handlers.onTranscript("Primeira pergunta");
+      await flush();
+      if (stage === "speaking") {
+        firstAnswer.resolve({ text: "Primeira resposta" });
+        await flush();
+      }
+      const signal = vi.mocked(deps.respond).mock.calls[0][1];
+      localSpeechPending = true;
+      await controller.setMuted(true);
+      expect(signal.aborted).toBe(false);
+      expect(deps.onState).toHaveBeenLastCalledWith(stage);
+      if (stage === "thinking") {
+        firstAnswer.resolve({ text: "Primeira resposta" });
+        await flush();
+      }
+      firstPlayback.resolve();
+      await flush();
+      expect(deps.onState).toHaveBeenLastCalledWith("transcribing");
+      localSpeechPending = false;
+      handlers.onSpeechStart();
+      handlers.onSpeechEnd();
+      handlers.onTranscript("Segunda pergunta já capturada");
+      await flush();
+      expect(deps.respond).toHaveBeenCalledTimes(2);
+      expect(deps.onAssistantText).toHaveBeenLastCalledWith("Segunda resposta");
+      expect(deps.onState).toHaveBeenLastCalledWith("muted");
+      await controller.stop();
+    },
+  );
+  it("a pending input timeout after mute does not abort an existing accepted response", async () => {
+    vi.useFakeTimers();
+    const answer = deferred<{ text: string }>();
+    let handlers!: LiveInputHandlers;
+    let localSpeechPending = false;
+    const input = {
+      setMuted: vi.fn(),
+      hasPendingSpeech: () => localSpeechPending,
+      finishTurn: vi.fn(),
+      close: vi.fn(),
+    };
+    const { controller, deps } = setup({
+      connect: vi.fn(async (callbacks) => {
+        handlers = callbacks;
+        return input;
+      }),
+      respond: vi.fn(() => answer.promise),
+    });
+    await controller.start();
+    handlers.onTranscript("Pergunta já aceita");
+    await flush();
+    const signal = vi.mocked(deps.respond).mock.calls[0][1];
+    localSpeechPending = true;
+    await controller.setMuted(true);
+    await vi.advanceTimersByTimeAsync(15000);
+    expect(signal.aborted).toBe(false);
+    expect(input.close).toHaveBeenCalledTimes(1);
+    expect(deps.onError).not.toHaveBeenCalled();
+    answer.resolve({ text: "Resposta da pergunta já aceita" });
+    await flush();
+    expect(deps.speak).toHaveBeenCalledExactlyOnceWith(
+      "Resposta da pergunta já aceita",
+      signal,
+    );
+    expect(deps.onState).toHaveBeenLastCalledWith("error");
+    expect(deps.onError).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({ message: expect.stringContaining("transcrição") }),
+    );
+    await controller.stop();
+    expect(vi.getTimerCount()).toBe(0);
+  });
+  it.each(["thinking", "speaking"] as const)(
+    "an empty pending transcript keeps existing %s protected from input failure",
+    async (stage) => {
+      const answer = deferred<{ text: string }>();
+      const playback = deferred<void>();
+      const { controller, deps, sessions } = setup({
+        respond: vi.fn(() => answer.promise),
+        speak: vi.fn(() => playback.promise),
+      });
+      await controller.start();
+      const { handlers, input } = sessions[0];
+      handlers.onTranscript("Pergunta já aceita");
+      await flush();
+      const signal = vi.mocked(deps.respond).mock.calls[0][1];
+      if (stage === "speaking") {
+        answer.resolve({ text: "Resposta já aceita" });
+        await flush();
+      }
+      input.hasPendingSpeech = () => true;
+      await controller.setMuted(true);
+      const stops = vi.mocked(deps.stopSpeaking).mock.calls.length;
+      handlers.onTranscript(" ");
+      expect(deps.onState).toHaveBeenLastCalledWith(stage);
+      handlers.onError(new Error("Falha somente na entrada"));
+      expect(signal.aborted).toBe(false);
+      expect(deps.stopSpeaking).toHaveBeenCalledTimes(stops);
+      if (stage === "thinking") {
+        answer.resolve({ text: "Resposta já aceita" });
+        await flush();
+      }
+      expect(deps.speak).toHaveBeenCalledExactlyOnceWith(
+        "Resposta já aceita",
+        signal,
+      );
+      playback.resolve();
+      await flush();
+      expect(deps.onState).toHaveBeenLastCalledWith("error");
+      expect(deps.onError).toHaveBeenCalledExactlyOnceWith(
+        expect.objectContaining({ message: "Falha somente na entrada" }),
+      );
+      expect(deps.respond).toHaveBeenCalledTimes(1);
+      await controller.stop();
+    },
+  );
   it("muting while a finished utterance is transcribing keeps its answer running", async () => {
     const answer = deferred<{ text: string }>();
     const playback = deferred<void>();
@@ -418,7 +663,7 @@ describe("live duplex conversation", () => {
     expect(deps.onError).not.toHaveBeenCalled();
     await controller.stop();
   });
-  it.each(["mute", "stop", "error"] as const)(
+  it.each(["stop", "error"] as const)(
     "%s clears an active speech watchdog",
     async (action) => {
       vi.useFakeTimers();
@@ -426,7 +671,6 @@ describe("live duplex conversation", () => {
       await controller.start();
       sessions[0].handlers.onSpeechStart();
       await vi.advanceTimersByTimeAsync(24000);
-      if (action === "mute") await controller.setMuted(true);
       if (action === "stop") await controller.stop();
       if (action === "error")
         sessions[0].handlers.onError(new Error("Conexão caiu"));

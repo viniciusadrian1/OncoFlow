@@ -154,22 +154,24 @@ export function createLiveConversationController(
   function waitForTranscript(session: number, turn: number) {
     clearTimeout(speechTimer);
     speechTimer = undefined;
-    if (!current(session, turn) || muted || transcriptionTimer !== undefined)
+    if (
+      !current(session, turn) ||
+      (muted && !awaitingMutedTranscript) ||
+      transcriptionTimer !== undefined
+    )
       return;
-    emit("transcribing");
-    transcriptionTimer = setTimeout(
-      () =>
-        fail(
+    if (state !== "thinking" && state !== "speaking") emit("transcribing");
+    transcriptionTimer = setTimeout(() => {
+      if (current(session, turn))
+        failInput(
           new Error(
             translate(
               "Não consegui concluir a transcrição. Toque em tentar novamente.",
             ),
           ),
           session,
-          turn,
-        ),
-      15000,
-    );
+        );
+    }, 15000);
   }
   async function answer(
     text: string,
@@ -208,12 +210,16 @@ export function createLiveConversationController(
       guardStage(session, turn, translate("A voz da Lia"), 60000);
       await deps.speak(result.text, abort.signal);
       if (!current(session, turn)) return;
-      clearWorkTimers();
+      if (awaitingMutedTranscript && !inputError) {
+        clearTimeout(stageTimer);
+        stageTimer = undefined;
+      } else clearWorkTimers();
       response = undefined;
       if (inputError) {
         emit("error");
         deps.onError(inputError);
-      } else emit(muted ? "muted" : "listening");
+      } else if (awaitingMutedTranscript) emit("transcribing");
+      else emit(muted ? "muted" : "listening");
     } catch (error) {
       if (current(session, turn)) fail(asError(error), session, turn);
     }
@@ -280,7 +286,8 @@ export function createLiveConversationController(
                 clearTimeout(transcriptionTimer);
                 transcriptionTimer = undefined;
                 if (!text.trim()) {
-                  emit(muted ? "muted" : "listening");
+                  if (state !== "thinking" && state !== "speaking")
+                    emit(muted ? "muted" : "listening");
                   return;
                 }
                 void answer(text.trim(), session);
@@ -369,8 +376,19 @@ export function createLiveConversationController(
       const session = generation;
       // This turn has already been captured. Mute affects future microphone
       // input, not its pending transcript, model request or output playback.
-      if (value && state === "transcribing") awaitingMutedTranscript = true;
+      if (
+        value &&
+        (state === "transcribing" ||
+          speechTimer !== undefined ||
+          input?.hasPendingSpeech?.())
+      ) {
+        awaitingMutedTranscript = true;
+      }
       muted = value;
+      // Capture can finish before either remote VAD event reaches the app.
+      // Publish its transcript wait with the new mute setting already applied.
+      if (value && awaitingMutedTranscript)
+        waitForTranscript(session, revision);
       input?.setMuted(value);
       if (!current(session)) return;
       if (value) {

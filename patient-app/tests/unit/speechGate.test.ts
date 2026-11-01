@@ -240,7 +240,42 @@ describe("local neural speech gate", () => {
     gate.close();
   });
 
-  it("mute flushes the delay and suppresses late speech callbacks before resuming", async () => {
+  it("mute detaches capture immediately and drains the confirmed word ending before closing output", async () => {
+    vi.useFakeTimers();
+    const h = harness();
+    const gate = await createSpeechGate(
+      h.raw,
+      h.callbacks,
+      h.abort.signal,
+      h.environment,
+    );
+    h.options().onSpeechRealStart?.();
+    expect(gate.hasPendingSpeech()).toBe(true);
+    gate.setMuted(true);
+    h.options().onSpeechRealStart?.();
+    expect(h.source.disconnect).toHaveBeenLastCalledWith(h.delays[0]);
+    expect(h.gain.gain.setValueAtTime).toHaveBeenLastCalledWith(1, 0);
+    expect(h.delays[0].disconnect).not.toHaveBeenCalled();
+    expect(h.callbacks.onLevel).toHaveBeenLastCalledWith(0);
+    await flush();
+    expect(h.engine.pause).toHaveBeenCalled();
+    await vi.advanceTimersByTimeAsync(849);
+    expect(h.gain.gain.setValueAtTime).toHaveBeenLastCalledWith(1, 0);
+    expect(h.delays[0].disconnect).not.toHaveBeenCalled();
+    await vi.advanceTimersByTimeAsync(1);
+    expect(h.gain.gain.setValueAtTime).toHaveBeenLastCalledWith(0, 0);
+    expect(h.delays[0].disconnect).toHaveBeenCalledOnce();
+    expect(gate.hasPendingSpeech()).toBe(false);
+    gate.setMuted(false);
+    await flush();
+    expect(h.delays.length).toBe(2);
+    expect(h.engine.start).toHaveBeenCalledTimes(2);
+    expect(h.rawStop).not.toHaveBeenCalled();
+    gate.close();
+  });
+
+  it("closing during the mute drain cancels its remaining audio and timer", async () => {
+    vi.useFakeTimers();
     const h = harness();
     const gate = await createSpeechGate(
       h.raw,
@@ -250,16 +285,76 @@ describe("local neural speech gate", () => {
     );
     h.options().onSpeechRealStart?.();
     gate.setMuted(true);
-    h.options().onSpeechRealStart?.();
-    expect(h.gain.gain.setValueAtTime).toHaveBeenLastCalledWith(0, 0);
-    expect(h.delays[0].disconnect).toHaveBeenCalled();
+    gate.close();
     await flush();
-    expect(h.engine.pause).toHaveBeenCalled();
+    expect(h.gain.gain.setValueAtTime).toHaveBeenLastCalledWith(0, 0);
+    expect(h.delays[0].disconnect).toHaveBeenCalledOnce();
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it("a quick unmute keeps the existing word tail and does not replay a fresh delay", async () => {
+    vi.useFakeTimers();
+    const h = harness();
+    const gate = await createSpeechGate(
+      h.raw,
+      h.callbacks,
+      h.abort.signal,
+      h.environment,
+    );
+    h.options().onSpeechRealStart?.();
+    gate.setMuted(true);
+    await vi.advanceTimersByTimeAsync(100);
     gate.setMuted(false);
     await flush();
-    expect(h.delays.length).toBe(2);
-    expect(h.engine.start).toHaveBeenCalledTimes(2);
-    expect(h.rawStop).not.toHaveBeenCalled();
+    expect(h.delays).toHaveLength(1);
+    expect(h.delays[0].disconnect).not.toHaveBeenCalled();
+    expect(h.source.connect).toHaveBeenLastCalledWith(h.delays[0]);
+    await vi.advanceTimersByTimeAsync(749);
+    expect(h.gain.gain.setValueAtTime).toHaveBeenLastCalledWith(1, 0);
+    await vi.advanceTimersByTimeAsync(1);
+    expect(h.gain.gain.setValueAtTime).toHaveBeenLastCalledWith(0, 0);
+    expect(h.delays[0].disconnect).not.toHaveBeenCalled();
+    gate.close();
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it("new confirmed speech after a quick unmute cancels the older tail closure", async () => {
+    vi.useFakeTimers();
+    const h = harness();
+    const gate = await createSpeechGate(
+      h.raw,
+      h.callbacks,
+      h.abort.signal,
+      h.environment,
+    );
+    h.options().onSpeechRealStart?.();
+    gate.setMuted(true);
+    gate.setMuted(false);
+    await flush();
+    h.options().onSpeechRealStart?.();
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(gate.hasPendingSpeech()).toBe(true);
+    expect(h.gain.gain.setValueAtTime).toHaveBeenLastCalledWith(1, 0);
+    gate.close();
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it("an idle mute does not open or drain unconfirmed audio", async () => {
+    vi.useFakeTimers();
+    const h = harness();
+    const gate = await createSpeechGate(
+      h.raw,
+      h.callbacks,
+      h.abort.signal,
+      h.environment,
+    );
+    expect(gate.hasPendingSpeech()).toBe(false);
+    gate.setMuted(true);
+    expect(h.delays[0].disconnect).toHaveBeenCalledOnce();
+    expect(
+      h.gain.gain.setValueAtTime.mock.calls.some(([value]) => value > 0),
+    ).toBe(false);
+    expect(vi.getTimerCount()).toBe(0);
     gate.close();
   });
 

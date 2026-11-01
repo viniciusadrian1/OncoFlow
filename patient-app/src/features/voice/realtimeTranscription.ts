@@ -11,6 +11,8 @@ export type LiveInputHandlers = {
   onError(error: Error): void;
 };
 export type LiveInput = {
+  /** Confirmed captured speech may still be in the local delay, before a remote ID. */
+  hasPendingSpeech?(): boolean;
   setMuted(value: boolean): void;
   finishTurn(): void;
   close(): void;
@@ -28,7 +30,8 @@ type RealtimeEvent = {
 export function createTranscriptionEvents(handlers: LiveInputHandlers) {
   let muted = false,
     closed = false,
-    manualCommitPending = false;
+    manualCommitPending = false,
+    pendingMutedCapture = false;
   let latest:
     | { id: string; ended: boolean; delivered: boolean; partial: string }
     | undefined;
@@ -38,6 +41,7 @@ export function createTranscriptionEvents(handlers: LiveInputHandlers) {
     if (known.size > 256) known.delete(known.values().next().value!);
   }
   function begin(id: string) {
+    pendingMutedCapture = false;
     remember(id);
     latest = { id, ended: false, delivered: false, partial: "" };
     handlers.onPartial("");
@@ -47,16 +51,33 @@ export function createTranscriptionEvents(handlers: LiveInputHandlers) {
     hasPendingTranscript() {
       return !closed && !!latest?.ended && !latest.delivered;
     },
-    expectManualCommit() {
-      if (!closed && !muted) manualCommitPending = true;
+    hasPendingSpeech() {
+      return (
+        !closed && (pendingMutedCapture || (!!latest && !latest.delivered))
+      );
     },
-    setMuted(value: boolean) {
+    needsCommit() {
+      return (
+        !closed &&
+        (pendingMutedCapture ||
+          (!!latest && !latest.ended && !latest.delivered))
+      );
+    },
+    expectManualCommit() {
+      if (
+        !closed &&
+        (!muted || pendingMutedCapture || (!!latest && !latest.delivered))
+      )
+        manualCommitPending = true;
+    },
+    setMuted(value: boolean, preserveCapturedSpeech = false) {
       muted = value;
       if (muted) {
-        manualCommitPending = false;
-        // Keep the one utterance already finished before mute. Any utterance
-        // beginning during mute is still ignored by the item-ID routing below.
-        if (!latest?.ended || latest.delivered) latest = undefined;
+        if (latest?.delivered) latest = undefined;
+        // The service can see the first speech ID after mute because the audio
+        // has an 850ms local delay. Admit one such ID only for confirmed capture.
+        pendingMutedCapture = !latest && preserveCapturedSpeech;
+        if (!latest && !pendingMutedCapture) manualCommitPending = false;
         handlers.onPartial("");
       }
     },
@@ -64,6 +85,7 @@ export function createTranscriptionEvents(handlers: LiveInputHandlers) {
       closed = true;
       known.clear();
       latest = undefined;
+      pendingMutedCapture = false;
     },
     receive(event: RealtimeEvent) {
       if (closed) return;
@@ -82,7 +104,7 @@ export function createTranscriptionEvents(handlers: LiveInputHandlers) {
       if (!id) return;
       if (event.type === "input_audio_buffer.speech_started") {
         if (known.has(id)) return;
-        if (muted) {
+        if (muted && !pendingMutedCapture) {
           remember(id);
           return;
         }
@@ -93,7 +115,7 @@ export function createTranscriptionEvents(handlers: LiveInputHandlers) {
         // Manual commit can produce an item without VAD speech_started. A commit
         // linked to an older predecessor must not replace a newer active utterance.
         if (
-          muted ||
+          (muted && !pendingMutedCapture && !manualCommitPending) ||
           (!manualCommitPending &&
             latest &&
             event.previous_item_id !== latest.id)
@@ -103,10 +125,9 @@ export function createTranscriptionEvents(handlers: LiveInputHandlers) {
         }
         begin(id);
       }
+      if (latest?.id !== id || latest.delivered) return;
       if (event.type === "input_audio_buffer.committed")
         manualCommitPending = false;
-      if (latest?.id !== id || latest.delivered || (muted && !latest.ended))
-        return;
       if (
         event.type === "input_audio_buffer.speech_stopped" ||
         event.type === "input_audio_buffer.committed"
@@ -189,6 +210,37 @@ export async function connectRealtimeInput(
   function clearFinishTimer() {
     clearTimeout(finishTimer);
     finishTimer = undefined;
+  }
+  function scheduleCommit(whileMuted = false) {
+    clearFinishTimer();
+    finishTimer = setTimeout(
+      () => {
+        finishTimer = undefined;
+        if (
+          closed ||
+          (muted && !whileMuted) ||
+          channel?.readyState !== "open" ||
+          (whileMuted && !router.needsCommit())
+        )
+          return;
+        try {
+          router.expectManualCommit();
+          channel.send(JSON.stringify({ type: "input_audio_buffer.commit" }));
+        } catch {
+          fail(
+            new Error(
+              translate(
+                "A conversa perdeu a conexão. Toque em tentar novamente.",
+              ),
+            ),
+          );
+        }
+        // Mute is not an explicit finish request. After the local audio drains,
+        // allow the native session's 600ms server-VAD silence and 400ms transit
+        // margin before forcing a commit; a natural end cancels this fallback.
+      },
+      SPEECH_GATE_SETTINGS.delayMs + (whileMuted ? 600 + 400 : 100),
+    );
   }
   const localAbort = new AbortController();
   const close = () => {
@@ -432,18 +484,23 @@ export async function connectRealtimeInput(
     throw error;
   }
   return {
+    hasPendingSpeech: () =>
+      !closed && (router.hasPendingSpeech() || !!gate?.hasPendingSpeech()),
     setMuted(value) {
       if (closed || muted === value) return;
       muted = value;
-      router.setMuted(value);
-      gate?.setMuted(value);
+      const localPending = !!gate?.hasPendingSpeech();
+      router.setMuted(value, localPending);
+      // Disable hardware capture before draining the gate's existing delay.
       stream?.getAudioTracks().forEach((track) => {
         track.enabled = !value;
       });
+      gate?.setMuted(value);
+      clearFinishTimer();
       if (value) {
-        clearFinishTimer();
         handlers.onLevel(0);
-        if (channel?.readyState === "open" && !router.hasPendingTranscript()) {
+        if (router.needsCommit()) scheduleCommit(true);
+        if (channel?.readyState === "open" && !router.hasPendingSpeech()) {
           try {
             channel.send(JSON.stringify({ type: "input_audio_buffer.clear" }));
           } catch {
@@ -468,22 +525,7 @@ export async function connectRealtimeInput(
         return;
       // A manual finish must include the word ending still in the local delay.
       // Natural VAD completion, mute or close cancels this pending fallback.
-      finishTimer = setTimeout(() => {
-        finishTimer = undefined;
-        if (closed || muted || channel?.readyState !== "open") return;
-        try {
-          router.expectManualCommit();
-          channel.send(JSON.stringify({ type: "input_audio_buffer.commit" }));
-        } catch {
-          fail(
-            new Error(
-              translate(
-                "A conversa perdeu a conexão. Toque em tentar novamente.",
-              ),
-            ),
-          );
-        }
-      }, SPEECH_GATE_SETTINGS.delayMs + 100);
+      scheduleCommit();
     },
     close,
   };
