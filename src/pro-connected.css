@@ -1,0 +1,72 @@
+/* Pro keeps its operational desktop layout and shares the patient app's identity. */
+.pro-app button, .pro-app input, .pro-app select, .pro-app a,
+.login-page button, .login-page a { min-height: 48px; }
+.pro-app .rounded-2xl { border-radius: 22px; }
+.pro-app aside nav button { border-radius: 28px; padding-top: 13px; padding-bottom: 13px; }
+.pro-app main > div > button { border-radius: 22px; }
+.pro-brand-badge { display: inline-flex; align-items: center; min-height: 25px; border: 1px solid var(--color-linha); border-radius: 10px; background: var(--color-gelo); color: var(--color-verde); padding: 3px 7px; font-size: 11px; font-weight: 750; letter-spacing: .03em; }
+.login-story { background: linear-gradient(155deg, var(--color-gelo), #f5fafb); color: var(--color-azul); border: 1px solid var(--color-linha); }
+.login-brand-logo { width: 185px; height: auto; }
+.login-brand .pro-brand-badge { font-size: 12px; font-weight: 750; letter-spacing: .03em; }
+.login-story-content > p, .login-story-footer, .login-journey-step small { color: var(--color-tinta-suave); }
+.login-journey-step > span { background: white; border: 1px solid var(--color-linha); color: var(--color-teal); }
+.login-journey-step > svg { color: var(--color-teal); }
+.login-user { border-radius: 22px; padding: 19px; }
+.login-user-info > small { font-size: 11px; }
+.login-user-info > strong { font-size: 15px; }
+.login-user-info > span { font-size: 12px; }
+.login-description { font-size: 15px; }
+.login-disclosure { font-size: 12px; }
+.login-patient-link { border-radius: 0; font-size: 14px; }
+.mobile-integration { display: grid; gap: 20px; min-width: 0; }
+.mobile-integration-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.pro-eyebrow { color: var(--color-teal); text-transform: uppercase; letter-spacing: .09em; font-size: 10px; font-weight: 750; margin-bottom: 7px; }
+.mobile-integration-heading h3 { font-size: 23px; line-height: 1.3; font-weight: 750; letter-spacing: -.7px; }
+.mobile-integration-heading > div > p:last-child { margin-top: 8px; color: var(--color-tinta-suave); font-size: 14px; line-height: 1.7; }
+.mobile-language { display: grid; gap: 5px; color: var(--color-tinta-suave); font-size: 11px; }
+.mobile-language select { border: 1px solid var(--color-linha); border-radius: 14px; background: white; color: var(--color-azul); padding: 8px 12px; font-size: 13px; }
+.mobile-demo { display: flex; align-items: center; gap: 7px; color: var(--color-tinta-suave); font-size: 11px; }
+.mobile-section { display: grid; gap: 14px; border: 1px solid var(--color-linha); border-radius: 22px; padding: 22px; min-width: 0; }
+.mobile-section-title { display: flex; gap: 10px; align-items: center; color: var(--color-verde); }
+.mobile-section-title h4 { color: var(--color-azul); font-size: 17px; font-weight: 750; }
+.mobile-section > p { color: var(--color-tinta-suave); font-size: 13px; line-height: 1.75; }
+.mobile-pairing { background: var(--color-gelo); }
+.mobile-server-address { display: grid; gap: 7px; font-size: 12px; font-weight: 650; }
+.mobile-server-address input { min-width: 0; width: 100%; background: white; border: 1px solid var(--color-linha); border-radius: 12px; padding: 10px 13px; font-size: 14px; }
+.mobile-section > .mobile-hint { font-size: 11px; }
+.pro-primary, .pro-secondary { display: inline-flex; align-items: center; justify-content: center; gap: 9px; min-height: 48px; max-width: 100%; width: fit-content; padding: 12px 20px; border-radius: 28px; line-height: 1.5; text-align: center; font-size: 13px; font-weight: 700; cursor: pointer; }
+.pro-primary { background: linear-gradient(110deg, var(--color-verde), var(--color-teal)); color: white; border: 1px solid var(--color-verde); }
+.pro-primary:hover { background: var(--color-azul); }
+.pro-secondary { background: white; color: var(--color-verde); border: 1px solid var(--color-linha); }
+.pro-secondary:hover { background: var(--color-gelo); border-color: var(--color-verde); }
+.pro-primary:disabled, .pro-secondary:disabled, fieldset:disabled .pro-primary { opacity: .55; cursor: wait; }
+.mobile-app-link { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 700; width: fit-content; color: var(--color-verde); text-decoration: underline; text-underline-offset: 3px; }
+.mobile-pairing-result { border-radius: 16px; background: white; border: 1px solid var(--color-linha); padding: 18px; display: grid; gap: 12px; font-size: 12px; line-height: 1.7; overflow-wrap: anywhere; }
+.mobile-pairing-code { font-size: clamp(24px, 3vw, 34px); font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: .14em; color: var(--color-verde); }
+.mobile-feedback { display: flex; align-items: flex-start; gap: 8px; padding: 14px 16px; border-radius: 14px; border: 1px solid var(--color-linha); background: var(--color-gelo); color: var(--color-verde); font-size: 13px; line-height: 1.7; }
+.mobile-feedback > svg { flex-shrink: 0; margin-top: 2px; }
+.mobile-feedback.is-error { border-color: var(--color-urgente-borda); background: var(--color-urgente-fundo); color: var(--color-urgente); }
+.mobile-editor { padding-top: 17px; border-top: 1px solid var(--color-linha); }
+.mobile-editor fieldset { min-width: 0; }
+.mobile-editor legend { font-size: 14px; line-height: 1.6; }
+.mobile-field-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 15px; }
+.mobile-field-grid > label { display: flex; flex-direction: column; align-items: stretch; gap: 7px; font-size: 12px; font-weight: 650; min-width: 0; }
+.mobile-field-grid input, .mobile-field-grid select, .mobile-field-grid textarea { width: 100%; min-width: 0; min-height: 48px; border: 1px solid var(--color-linha); background: white; border-radius: 12px; padding: 11px 12px; font-size: 13px; font-weight: 500; color: var(--color-azul); line-height: 1.6; }
+.mobile-field-grid textarea { resize: vertical; }
+.mobile-field-grid small { font-size: 10px; font-weight: 400; color: var(--color-tinta-suave); }
+.mobile-field-wide { grid-column: 1 / -1; }
+.mobile-editor .pro-primary { margin-top: 17px; }
+.mobile-approval { display: flex; align-items: center; gap: 11px; font-size: 12px; line-height: 1.8; margin-top: 17px; cursor: pointer; min-height: 48px; }
+.mobile-approval input { width: 20px; height: 20px; min-height: 20px; flex-shrink: 0; accent-color: var(--color-verde); }
+.mobile-document { border-top: 1px solid var(--color-linha); padding-top: 18px; font-size: 12px; line-height: 1.8; overflow-wrap: anywhere; }
+.mobile-document h5 { font-size: 14px; font-weight: 700; margin-top: 7px; }
+.mobile-document > p { color: var(--color-tinta-suave); }
+.mobile-document > .mobile-document-text { color: var(--color-azul); white-space: pre-wrap; margin-top: 10px; }
+.mobile-publication-status { display: inline-flex; color: var(--color-atencao); background: var(--color-atencao-fundo); padding: 3px 9px; border-radius: 12px; font-size: 10px; }
+.mobile-publication-status.is-published { color: var(--color-verde); background: var(--color-gelo); }
+@media (max-width: 600px) {
+  .mobile-section { padding: 17px; }
+  .mobile-field-grid { grid-template-columns: minmax(0, 1fr); }
+  .mobile-integration .pro-primary { width: 100%; }
+  .pro-app main { padding-top: 22px; }
+}

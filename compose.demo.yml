@@ -1,0 +1,18 @@
+services:
+  oncoflow-demo:
+    build:
+      context: .
+      dockerfile: Dockerfile.demo
+    ports:
+      - "${ONCOFLOW_DEMO_PORT:-3000}:3000"
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      ONCOFLOW_PATIENT_WEB_DIR: /app/dist/app
+      ONCOFLOW_DEMO_STATE_PATH: /data/state.json
+    volumes:
+      - oncoflow-demo-state:/data
+    restart: unless-stopped
+
+volumes:
+  oncoflow-demo-state:

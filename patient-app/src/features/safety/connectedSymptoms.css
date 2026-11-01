@@ -1,0 +1,23 @@
+.connected-symptom-status {
+  border: 2px solid #8a591d;
+  background: #fff8ee;
+  color: #42321f;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: auto;
+  max-height: 45dvh;
+}
+.connected-symptom-status p {
+  white-space: pre-line;
+}
+.connected-symptom-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.connected-symptom-buttons button {
+  min-height: 48px;
+}
+.voice-conversation .connected-symptom-status {
+  max-height: 36dvh;
+}

@@ -1,0 +1,85 @@
+apply plugin: 'com.android.application'
+
+// Private presentation build: the user explicitly requested direct provider calls.
+// Read secrets locally; never put them in source files, command arguments or build logs.
+def liaEnv = [:]
+def liaEnvFile = rootProject.file('../.env')
+if (liaEnvFile.exists()) {
+    liaEnvFile.readLines('UTF-8').each { line ->
+        def matcher = line =~ /^\s*([A-Z0-9_]+)\s*=\s*(.*?)\s*$/
+        if (matcher.matches()) {
+            def value = matcher[0][2]
+            if (value.length() >= 2 && ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'")))) {
+                value = value.substring(1, value.length() - 1)
+            }
+            liaEnv[matcher[0][1]] = value
+        }
+    }
+}
+def liaValue = { name, fallback -> System.getenv(name) ?: liaEnv[name] ?: fallback }
+def javaString = { value -> '"' + value.replace('\\', '\\\\').replace('"', '\\"').replace('\r', '').replace('\n', '') + '"' }
+
+android {
+    namespace = "br.com.oncoflow.paciente"
+    compileSdk = rootProject.ext.compileSdkVersion
+    defaultConfig {
+        applicationId "br.com.oncoflow.paciente"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode 13
+        versionName "0.11.1"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField 'String', 'OPENAI_API_KEY', javaString(liaValue('OPENAI_API_KEY', ''))
+        buildConfigField 'String', 'ELEVENLABS_API_KEY', javaString(liaValue('ELEVENLABS_API_KEY', ''))
+        buildConfigField 'String', 'OPENAI_LLM_MODEL', javaString(liaValue('OPENAI_LLM_MODEL', 'gpt-4o'))
+        buildConfigField 'String', 'OPENAI_STT_MODEL', javaString(liaValue('OPENAI_STT_MODEL', 'gpt-4o-mini-transcribe'))
+        buildConfigField 'String', 'ELEVENLABS_TTS_MODEL', javaString(liaValue('ELEVENLABS_TTS_MODEL', 'eleven_multilingual_v2'))
+        buildConfigField 'String', 'ELEVENLABS_VOICE_ID', javaString(liaValue('ELEVENLABS_VOICE_ID', 'EXAVITQu4vr4xnSDxMaL'))
+        buildConfigField 'String', 'ELEVENLABS_TTS_SPEED', javaString(liaValue('ELEVENLABS_TTS_SPEED', '0.95'))
+        buildConfigField 'String', 'ELEVENLABS_TTS_STABILITY', javaString(liaValue('ELEVENLABS_TTS_STABILITY', '0.6'))
+        buildConfigField 'String', 'ELEVENLABS_TTS_SIMILARITY_BOOST', javaString(liaValue('ELEVENLABS_TTS_SIMILARITY_BOOST', '0.75'))
+        buildConfigField 'String', 'ELEVENLABS_TTS_STYLE', javaString(liaValue('ELEVENLABS_TTS_STYLE', '0'))
+        buildConfigField 'String', 'ELEVENLABS_TTS_USE_SPEAKER_BOOST', javaString(liaValue('ELEVENLABS_TTS_USE_SPEAKER_BOOST', 'false'))
+        aaptOptions {
+             // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
+             // Default: https://android.googlesource.com/platform/frameworks/base/+/282e181b58cf72b6ca770dc7ca5f91f135444502/tools/aapt/AaptAssets.cpp#61
+            ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
+        }
+    }
+    buildFeatures { buildConfig true }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+repositories {
+    flatDir{
+        dirs '../capacitor-cordova-android-plugins/src/main/libs', 'libs'
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
+    implementation "androidx.coordinatorlayout:coordinatorlayout:$androidxCoordinatorLayoutVersion"
+    implementation "androidx.core:core-splashscreen:$coreSplashScreenVersion"
+    implementation project(':capacitor-android')
+    testImplementation "junit:junit:$junitVersion"
+    androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
+    androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
+    implementation project(':capacitor-cordova-android-plugins')
+}
+
+apply from: 'capacitor.build.gradle'
+
+try {
+    def servicesJSON = file('google-services.json')
+    if (servicesJSON.text) {
+        apply plugin: 'com.google.gms.google-services'
+    }
+} catch(Exception e) {
+    logger.info("google-services.json not found, google-services plugin not applied. Push Notifications won't work")
+}

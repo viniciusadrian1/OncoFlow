@@ -1,0 +1,15 @@
+{
+  "name": "@oncoflow/paciente",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port 5174 --strictPort",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview --port 5174"
+  },
+  "dependencies": {
+    "@oncoflow/shared": "*",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  }
+}

@@ -1,0 +1,144 @@
+.hospital-pair-panel {
+  margin: 18px 0;
+  width: 100%;
+}
+.hospital-pair-form,
+.hospital-message-form {
+  display: grid;
+  gap: 12px;
+  text-align: left;
+}
+.hospital-pair-form h2,
+.hospital-pair-form p,
+.hospital-message-form p {
+  margin: 0;
+}
+.hospital-pair-form label,
+.hospital-message-form label {
+  font-weight: 650;
+}
+.hospital-pair-form input:not([type="checkbox"]),
+.hospital-message-form textarea {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  border: 1px solid #b9d6d9;
+  background: #fff;
+  color: #163f49;
+  border-radius: 12px;
+  padding: 13px;
+  font: inherit;
+}
+.hospital-pair-form input:focus-visible,
+.hospital-message-form textarea:focus-visible {
+  outline: 3px solid #51b9b2;
+  outline-offset: 2px;
+}
+.hospital-local-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  font-size: 0.9em;
+}
+.hospital-local-option input {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+}
+.hospital-status {
+  padding: 13px 15px;
+  border-radius: 14px;
+  background: #edf7f5;
+  margin-bottom: 18px;
+  display: grid;
+  gap: 9px;
+  color: #174951;
+}
+.hospital-status p {
+  margin: 0;
+}
+.hospital-status small {
+  display: block;
+}
+.hospital-status.is-offline {
+  background: #fff4e5;
+  color: #6b4d23;
+}
+.hospital-connection-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+  padding: 4px 0;
+  margin-bottom: 6px;
+  border-radius: 0;
+  background: transparent;
+  font-size: calc(12px * var(--text-scale));
+  line-height: 1.5;
+}
+.hospital-connection-status strong {
+  font-weight: 600;
+}
+.hospital-connection-status p,
+.hospital-connection-status button {
+  flex-basis: 100%;
+}
+.hospital-connection-status.is-offline {
+  padding: 10px;
+  border-radius: 12px;
+}
+.page-home .hospital-connection-status {
+  margin-bottom: 2px;
+}
+.page-home .hospital-connection-status ~ .home-screen {
+  gap: 8px;
+}
+.page-home .hospital-connection-status ~ .home-screen .home-shortcut {
+  min-height: 76px;
+}
+@media (max-width: 480px) {
+  .hospital-connection-status > small {
+    display: none;
+  }
+}
+.hospital-error {
+  color: #8b3434;
+}
+.team-messages {
+  margin-top: 28px;
+}
+.team-messages > p {
+  line-height: 1.5;
+}
+.team-message p,
+.message-review blockquote {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.team-message {
+  padding: 16px;
+}
+.team-message-patient {
+  margin-left: 20px;
+  background: #edf7f5;
+}
+.hospital-message-form {
+  margin-top: 18px;
+}
+.message-review {
+  display: grid;
+  gap: 12px;
+}
+.message-review h3 {
+  margin: 0;
+}
+.message-review blockquote {
+  margin: 0;
+  padding: 12px;
+  border-left: 3px solid #43a49d;
+  background: #f1f8f7;
+}
+.hospital-connection-actions {
+  display: grid;
+  gap: 12px;
+}

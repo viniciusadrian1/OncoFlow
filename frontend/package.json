@@ -1,0 +1,25 @@
+{
+  "name": "oncoflow-frontend",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev:pro": "npm run dev -w @oncoflow/pro --",
+    "dev:paciente": "npm run dev -w @oncoflow/paciente --",
+    "build": "npm run build -w @oncoflow/pro && npm run build -w @oncoflow/paciente",
+    "typecheck": "tsc -b apps/pro apps/paciente"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.15",
+    "typescript": "^5.6.3",
+    "vite": "^6.0.3"
+  }
+}

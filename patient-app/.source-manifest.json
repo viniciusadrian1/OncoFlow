@@ -1,0 +1,702 @@
+{
+  "schema": 1,
+  "appVersion": "0.11.1",
+  "files": [
+    {
+      "path": ".env.example",
+      "sha256": "03637fe2793198d670e6f38e6a2f2025cc37d881cfecd0c7aff78cc897e7050b"
+    },
+    {
+      "path": ".gitignore",
+      "sha256": "cf4c64b6c7a09c21132e4278c8c774c776314ffd726d50f0fc42fe2fefa1c529"
+    },
+    {
+      "path": "android/.gitignore",
+      "sha256": "065e4a92a240fe11a0ea230491ad9dabef143f5fd5a3e6884ad6f0395666a971"
+    },
+    {
+      "path": "android/app/.gitignore",
+      "sha256": "99c54e51ee601a60fbde8016b2cbf717483bc2e92773be86c9247d02a7fa6ea4"
+    },
+    {
+      "path": "android/app/build.gradle",
+      "sha256": "4dfe2c8e211317a1b0afa05b75198cb6a6af6230bd7079beadaf25f9641894e6"
+    },
+    {
+      "path": "android/app/capacitor.build.gradle",
+      "sha256": "6e5b4b4d6a9b7cebe6ed915292faf7b82b89f1ff5f8e7603d9fae0d117289c42"
+    },
+    {
+      "path": "android/app/proguard-rules.pro",
+      "sha256": "1cf8c57e8f79c250b0af9c1a5a4edad71a5c348a79ab70243b6bae086c150ad2"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/getcapacitor/myapp/ExampleInstrumentedTest.java",
+      "sha256": "ff50b4c110a7434312f9af54171f9e8523b015836f707c9b387b76d4c38a97f8"
+    },
+    {
+      "path": "android/app/src/debug/AndroidManifest.xml",
+      "sha256": "671e327a85801f3efb28d327ed6d27d8591fe39d607c55c6860c9e0ec6783ece"
+    },
+    {
+      "path": "android/app/src/main/AndroidManifest.xml",
+      "sha256": "7dc9cc37131bee6f5dee5143959e02de8d7e587a1c41208ee14b527861f7e915"
+    },
+    {
+      "path": "android/app/src/main/java/br/com/oncoflow/paciente/CaptureCompletion.java",
+      "sha256": "f4359324aba463e5fedce37d3115a03a74284dfa85f310d2293b0c31366e384b"
+    },
+    {
+      "path": "android/app/src/main/java/br/com/oncoflow/paciente/LiaProviderPlugin.java",
+      "sha256": "e89050a1540e595b3724e13eca8aba9c1163656e459517aef48f2da463c9698b"
+    },
+    {
+      "path": "android/app/src/main/java/br/com/oncoflow/paciente/LiaRecorder.java",
+      "sha256": "57249d76c08c822b7e634f1ada6b12a9b0f1f80a7d174e6227a5cbf4443d0a2b"
+    },
+    {
+      "path": "android/app/src/main/java/br/com/oncoflow/paciente/MainActivity.java",
+      "sha256": "e9ca698ccb79ecd45e6f20d4041825e1d8fc7b1cb2b551bc909658a7c7332e3b"
+    },
+    {
+      "path": "android/app/src/main/java/br/com/oncoflow/paciente/ProviderFailure.java",
+      "sha256": "142f0544a6efa90d55503b8bc1be78c2e525c58c6ffe44e6120504c8eb39b7b6"
+    },
+    {
+      "path": "android/app/src/main/java/br/com/oncoflow/paciente/TurnDetector.java",
+      "sha256": "711a0f2e46a968a064932be68c6f72701e81f53e93a33233c4438488a247a8ef"
+    },
+    {
+      "path": "android/app/src/main/res/drawable-land-hdpi/splash.png",
+      "sha256": "08cc34ad7713fe7ed58bceaa37b2387b670c53cd60264b4bd6442db3098e75dc"
+    },
+    {
+      "path": "android/app/src/main/res/drawable-land-mdpi/splash.png",
+      "sha256": "5cf98b4451bd99b20df26f9e608a46946118be6b0ae90762f9ca1786a30c76ff"
+    },
+    {
+      "path": "android/app/src/main/res/drawable-land-xhdpi/splash.png",
+      "sha256": "22f87e1e3bc89aa01a7dbc39c9a4db058cd0bf4ad3fe9f55712bf69eb997f4bf"
+    },
+    {
+      "path": "android/app/src/main/res/drawable-land-xxhdpi/splash.png",
+      "sha256": "42aa26392546fcdee1b8d3ac6d4b41bfcceb41dc6a4f3a3c30c24a8a8f4db862"
+    },
+    {
+      "path": "android/app/src/main/res/drawable-land-xxxhdpi/splash.png",
+      "sha256": "60393ce8636fd263e4e1fea3fd4ab2de948c6295e898fda9b50ac4e5283be809"
+    },
+    {
+      "path": "android/app/src/main/res/drawable-port-hdpi/splash.png",
+      "sha256": "c5015f4ba3628392b538386c5e210f0b94f352a3160adab934fd0311972137ca"
+    },
+    {
+      "path": "android/app/src/main/res/drawable-port-mdpi/splash.png",
+      "sha256": "07fa579e1c83e04ba7f9cbcbfcf41b68e15fe3638f2c44a04e58b809103e6b69"
+    },
+    {
+      "path": "android/app/src/main/res/drawable-port-xhdpi/splash.png",
+      "sha256": "b73049cb37fe76d6c11b87a796766bf6af0c85483b31eb6a921657b0d764a4b9"
+    },
+    {
+      "path": "android/app/src/main/res/drawable-port-xxhdpi/splash.png",
+      "sha256": "0c7f1212f25b7b90e9a6e1d320013e4ff3d3e03e634cbb07b7b7981cac51627f"
+    },
+    {
+      "path": "android/app/src/main/res/drawable-port-xxxhdpi/splash.png",
+      "sha256": "3db071a03b2f8ffe0dfd4170fc59842d53cd15bba5e88af59401d58efabf7827"
+    },
+    {
+      "path": "android/app/src/main/res/drawable-v24/ic_launcher_foreground.xml",
+      "sha256": "a8514094f754b099d3e55ce1d6e0b2de79db418b2eeacb0fc2a6bb0bfadef221"
+    },
+    {
+      "path": "android/app/src/main/res/drawable/ic_launcher_background.xml",
+      "sha256": "718ba51adf166bb55c3e9936bb8199a0148457f7f0191aaa2f37a94f3159d6ec"
+    },
+    {
+      "path": "android/app/src/main/res/drawable/oncoflow_icon.png",
+      "sha256": "524121a4f55292f644bfa7f10117949123ddbcfc03bc05280c6987b4060b0535"
+    },
+    {
+      "path": "android/app/src/main/res/drawable/splash.png",
+      "sha256": "5cf98b4451bd99b20df26f9e608a46946118be6b0ae90762f9ca1786a30c76ff"
+    },
+    {
+      "path": "android/app/src/main/res/layout/activity_main.xml",
+      "sha256": "5d770feb791313b947020cbfc57e5c733c556dac5e9e49261a1190e527073253"
+    },
+    {
+      "path": "android/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml",
+      "sha256": "9c3a7e0a6515c6e1a7ae834a9ae430311ebc3241f7b2e5e7f0460aa690709a7c"
+    },
+    {
+      "path": "android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml",
+      "sha256": "9c3a7e0a6515c6e1a7ae834a9ae430311ebc3241f7b2e5e7f0460aa690709a7c"
+    },
+    {
+      "path": "android/app/src/main/res/mipmap-hdpi/ic_launcher_foreground.png",
+      "sha256": "32baa10d2632a4417454a579f992bd640e0a3cec79321423559b2c9940de58a9"
+    },
+    {
+      "path": "android/app/src/main/res/mipmap-hdpi/ic_launcher_round.png",
+      "sha256": "bfcc1b0fa931b14bb241372c76ab4f04374b67d02363c98d9cb12edfdacdf5f3"
+    },
+    {
+      "path": "android/app/src/main/res/mipmap-hdpi/ic_launcher.png",
+      "sha256": "72b71c3581ca3b5a23b1c168d69b9d855b3f184fa079902a01f088eb4f0607d5"
+    },
+    {
+      "path": "android/app/src/main/res/mipmap-mdpi/ic_launcher_foreground.png",
+      "sha256": "58e78a618778926b1f6d9472a6468de878de8530970934e94aab5ba4ba08cc00"
+    },
+    {
+      "path": "android/app/src/main/res/mipmap-mdpi/ic_launcher_round.png",
+      "sha256": "0166fc333074c373fbd0ce6b5defd71552166165ac778121ca9c9dff6b83f0fc"
+    },
+    {
+      "path": "android/app/src/main/res/mipmap-mdpi/ic_launcher.png",
+      "sha256": "27ed3603010ebc278f64f8645741ab132ff517abb5308eb9df6c8e42a48956b2"
+    },
+    {
+      "path": "android/app/src/main/res/mipmap-xhdpi/ic_launcher_foreground.png",
+      "sha256": "6f88083b8166cc559102f7044688de7525287632ebe09ac45d001ac8bf4b3eae"
+    },
+    {
+      "path": "android/app/src/main/res/mipmap-xhdpi/ic_launcher_round.png",
+      "sha256": "40911a00922868686854a4804b93fd6e56b503664696de03f450bff690affb6d"
+    },
+    {
+      "path": "android/app/src/main/res/mipmap-xhdpi/ic_launcher.png",
+      "sha256": "d35dbfff175b83c13ef59cf924abfc810f7b6a158595d7417c5498ea8c7c7ed1"
+    },
+    {
+      "path": "android/app/src/main/res/mipmap-xxhdpi/ic_launcher_foreground.png",
+      "sha256": "4a82bc1e9923576275869998925ce0ae021a79aa18b24a0dd87ad6b61ca85053"
+    },
+    {
+      "path": "android/app/src/main/res/mipmap-xxhdpi/ic_launcher_round.png",
+      "sha256": "1ee4cd9ff371dcb2e3938097e434f6fb8731688ed7165e61fc63693ad5b2f455"
+    },
+    {
+      "path": "android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png",
+      "sha256": "ed346eb1e3f0280f15709393705899b3ff55c20b88f4e0308006b3c33cf5fe14"
+    },
+    {
+      "path": "android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.png",
+      "sha256": "bd24fd383253bf8d43f0a81f11c071d76d1d555114376dd647cd9fb38fa0a9da"
+    },
+    {
+      "path": "android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png",
+      "sha256": "ab93096331e7cd8ec379f73f1e9adcaaa9ee1115c9f4ff10411a811fb9700174"
+    },
+    {
+      "path": "android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png",
+      "sha256": "87cb2f2ffe992652bb4fa768c73719a37b5852ab17fbf8e170e888f7a42b0761"
+    },
+    {
+      "path": "android/app/src/main/res/values/colors.xml",
+      "sha256": "55920cc32df6e374e67670d84748542a7b53344b1110683244ad92b7a9e255b6"
+    },
+    {
+      "path": "android/app/src/main/res/values/ic_launcher_background.xml",
+      "sha256": "cd40bafe618ff506f4088778b135cb4faa15f25e0c9b475e22d730c74b7be115"
+    },
+    {
+      "path": "android/app/src/main/res/values/strings.xml",
+      "sha256": "b2a5c8e88e2ef1c4ec3e8a583803746ba97edab877fcae2409c5f13bc69cbdfd"
+    },
+    {
+      "path": "android/app/src/main/res/values/styles.xml",
+      "sha256": "61d6690749a5d3c9b29255f33ec8f2162332f4a50ab03a9d9947096799d79127"
+    },
+    {
+      "path": "android/app/src/main/res/xml/config.xml",
+      "sha256": "e9dcda493e663c5c4db9e3cb3bd968477a6e90aa8840bcbba40d72ed54b767ce"
+    },
+    {
+      "path": "android/app/src/main/res/xml/file_paths.xml",
+      "sha256": "a46ed43ef65c90cb6778f4581decf3556e3f0055aad8f36d69dae16f9a0e99aa"
+    },
+    {
+      "path": "android/app/src/test/java/br/com/oncoflow/paciente/CaptureCompletionTest.java",
+      "sha256": "d58d404df10f1059acc9bbf5fd2dd09f72191616b476df1cc58752b923ee3fda"
+    },
+    {
+      "path": "android/app/src/test/java/br/com/oncoflow/paciente/ProviderFailureTest.java",
+      "sha256": "b7d09126ae51df422d0e9413383191130cbc2058aa73c84625038054e0eb3b44"
+    },
+    {
+      "path": "android/app/src/test/java/br/com/oncoflow/paciente/TurnDetectorTest.java",
+      "sha256": "f9337836ef607a7055a0dc7fd8326c7b562db345effe88b5da76d574a4917e1a"
+    },
+    {
+      "path": "android/app/src/test/java/com/getcapacitor/myapp/ExampleUnitTest.java",
+      "sha256": "d4045ae8fac1f0807e6b24eb34e68409a9a235df9d1a3f896fb8c9a49424363d"
+    },
+    {
+      "path": "android/build.gradle",
+      "sha256": "46ade7db7afeb8049ccea59fce83095dca736ceb8c9acd79cc944e988c3357d9"
+    },
+    {
+      "path": "android/capacitor.settings.gradle",
+      "sha256": "c57bf3eb3456c8aada687b34274a3458a67dcf1bdeed8248d40e645c8fbccd07"
+    },
+    {
+      "path": "android/gradle.properties",
+      "sha256": "3bab15c5b8bc4c2f4b6cf525497d15ad4abca53a460e6dd2eb0f0135817d31e6"
+    },
+    {
+      "path": "android/gradle/wrapper/gradle-wrapper.jar",
+      "sha256": "7d3a4ac4de1c32b59bc6a4eb8ecb8e612ccd0cf1ae1e99f66902da64df296172"
+    },
+    {
+      "path": "android/gradle/wrapper/gradle-wrapper.properties",
+      "sha256": "9a479a85aa879bb55284fc16d0de5b81a745c3854f4e2d88c42e7debaf007435"
+    },
+    {
+      "path": "android/gradlew",
+      "sha256": "b187b4c52e749f5760afdd6fadc31b2a98ad35fb249bf0dff03b72650f320409"
+    },
+    {
+      "path": "android/gradlew.bat",
+      "sha256": "1d297e00bd21de3ace22b4d7f2de1f9dfa858883d66bbf7c1ccbecccec8f4f3b"
+    },
+    {
+      "path": "android/settings.gradle",
+      "sha256": "6ce098d15ebd69b44c4ecd786bca1bdc366340d2459b2af4d7bb0ab317aa9669"
+    },
+    {
+      "path": "android/variables.gradle",
+      "sha256": "83d502c9ed8fcf1dd4791482067abeedbebae49fafe9cd14a8a1f5891deb0d88"
+    },
+    {
+      "path": "capacitor.config.ts",
+      "sha256": "53d8d598d16c9e33be2c95f6358cc19a6541493bb409bedcfbfffcc75a476cd4"
+    },
+    {
+      "path": "docs/android-build.md",
+      "sha256": "c61347607d485bb65f8d5b6286a7ab3ff98c170fd018277043153881512123b2"
+    },
+    {
+      "path": "docs/hospital-integration.md",
+      "sha256": "816485668fa4e0670a355995fa034e2055be1ea86d412cb48a7b9c0819f095c7"
+    },
+    {
+      "path": "docs/lia-provider-selection.md",
+      "sha256": "666e1cc39f303f0faa8fc73bd97559f8ba80ae914316565b231af9395ccf2c90"
+    },
+    {
+      "path": "docs/verification-v010.md",
+      "sha256": "9e66cfa91f34199d78b57cff3279b6c81a14dd31eacbc083b1731fcd884f7e2f"
+    },
+    {
+      "path": "docs/verification-v011.md",
+      "sha256": "b5c10ce4b0ec27417dee6f063907c799375114be1d72100a906185f99b6d68c8"
+    },
+    {
+      "path": "docs/verification-v0111.md",
+      "sha256": "8919cf5dc1529fb143dcce08b151d93c354ba5b58d6467bd7fd2ef04fc912997"
+    },
+    {
+      "path": "index.html",
+      "sha256": "481aa764e4b3bf3fe3d80256ee7abef688c18121c84a559ffaa1e3b78d506537"
+    },
+    {
+      "path": "package-lock.json",
+      "sha256": "4a35f5ab06eac007e7f6fadbab135d65620e687a134e3e35225cc20d50ca8ac0"
+    },
+    {
+      "path": "package.json",
+      "sha256": "87ad800e8353412d0ddead062741f3919c8324839033adc2b463d4dc2cb73ff1"
+    },
+    {
+      "path": "playwright.config.ts",
+      "sha256": "4b7c2f8407148284aab25522ca6bdeb9b7ba3538a3feaa6626970e8604f6f33e"
+    },
+    {
+      "path": "public/brand/icon-192.png",
+      "sha256": "553da0e87fe934d717c73b2eb51da0cc9303275fef941be5cc345dcd86d1e835"
+    },
+    {
+      "path": "public/brand/icon-512.png",
+      "sha256": "524121a4f55292f644bfa7f10117949123ddbcfc03bc05280c6987b4060b0535"
+    },
+    {
+      "path": "public/brand/logo.svg",
+      "sha256": "38b085fae5789d0bdf8a6eb5ea945e14025259e8e7bd13cf490ca4f5f653424e"
+    },
+    {
+      "path": "public/brand/Manrope.ttf",
+      "sha256": "3ae11c49db0455a3cc33e37d380f20fdb8c7f8b41dc07625c177e3d87a9d6ae6"
+    },
+    {
+      "path": "public/brand/OFL.txt",
+      "sha256": "58172e0c0fac2cda8a37b348164bb55e44b0e69051e557e92b1d3f6910141f7b"
+    },
+    {
+      "path": "public/vad/LICENSE-ONNXRUNTIME.txt",
+      "sha256": "0f197a604f76167996228accb7e5536be230682350093fa456b62ec651efba0a"
+    },
+    {
+      "path": "public/vad/LICENSE-SILERO.txt",
+      "sha256": "74bb1b7edcaeb26b9b268a1e89e0113fa2ee346538c26459b15a25f62c9477b3"
+    },
+    {
+      "path": "public/vad/LICENSE-VAD-WEB.txt",
+      "sha256": "44c86e6668df34da5a89d8a214b5b73d9ba509c3b375cad6eaa14f80100fbe19"
+    },
+    {
+      "path": "public/visual/lia-orb.svg",
+      "sha256": "f2088f2933802491ea655a4e2fd9a715ffc8641b77018ac31e76d2d250b90f9f"
+    },
+    {
+      "path": "README.md",
+      "sha256": "5ae0a038e69a51230a3c896bfc6a2651341dbea88779b4770843afdfa1477f75"
+    },
+    {
+      "path": "scripts/build-android.ps1",
+      "sha256": "44e4fb54c3d8fa2bf18e82efc9e97a859d97c96c5b5f0d50df57a601edc93dd8"
+    },
+    {
+      "path": "scripts/copy-vad-assets.mjs",
+      "sha256": "b26dfa2bb02af4f1d775f5b0358693999a927c7fafd12d627bfaed4df42de453"
+    },
+    {
+      "path": "shared/contracts.ts",
+      "sha256": "f5d542ca134d94e911540bedc7ac1e14e939f6824db4d4068c3e5e21bc37f689"
+    },
+    {
+      "path": "shared/hospitalContracts.ts",
+      "sha256": "ceb0812e55b6e95a1d07cc88c406ff90134a2488dee26de821de6152c5e09ca1"
+    },
+    {
+      "path": "shared/liaActions.ts",
+      "sha256": "8b92eec722c717ffe21aefeb089a47b597918af6edbdfaa275b85f1c91b6f0f9"
+    },
+    {
+      "path": "src/adapters/liaProvider.ts",
+      "sha256": "b651926fd41ccefa963bf0f47a9fec75b28a40ac8c5bbc3d6c011cc6a5a83525"
+    },
+    {
+      "path": "src/adapters/patientData.mock.ts",
+      "sha256": "1a72e8ed39c7408355b2a340bf53a9e5c466da8320897224175bb70af8293b81"
+    },
+    {
+      "path": "src/app/App.tsx",
+      "sha256": "879c4a28c9afd244356c62fe898c26ca19266a1fe626a7944a63f3d7cb7db188"
+    },
+    {
+      "path": "src/app/liaAppBridge.ts",
+      "sha256": "dadf6187bf88aee5959de35ee60f780567447f5490dd34e24636014e2349cef4"
+    },
+    {
+      "path": "src/app/session.ts",
+      "sha256": "f95a7ca8fb0cea2ded8515fe4411eff37ab6dabad223034b8c2d86e4d9fa518d"
+    },
+    {
+      "path": "src/app/styles.css",
+      "sha256": "5182bd2d145b0ecc8c20ae508afd3414ee7837537e6f5ec7be1a79ef7a1873fb"
+    },
+    {
+      "path": "src/app/visualTheme.css",
+      "sha256": "8d1e854fdd17b8f8aa9e47adb46423afee831d4d52cc068a3759ebf76dacb1d6"
+    },
+    {
+      "path": "src/demo/fixtures.ts",
+      "sha256": "d96c5c18a7a1c91d5b4818a28f187f48267e3f53ef2b723eeee682cbee7cfa64"
+    },
+    {
+      "path": "src/features/lia/actions.ts",
+      "sha256": "088d0d1744a36003d3c9f653cf102e399f4ce0ad326a59e5f3d6443feec5b4c8"
+    },
+    {
+      "path": "src/features/lia/lia.css",
+      "sha256": "da23b7c198744848d622de940b4f89f05ac9a216fc88d5f820899d878d00066e"
+    },
+    {
+      "path": "src/features/lia/LiaActionConfirmation.tsx",
+      "sha256": "0be223b36e81a42ab03ec1c43a337dfd8e6c21d148afd08626985c87cd69ed42"
+    },
+    {
+      "path": "src/features/lia/LiaCallDock.tsx",
+      "sha256": "b6f32da291889a9bb9682fc1b48deb4b54ef66fd126c042a82170d82696a9bdc"
+    },
+    {
+      "path": "src/features/lia/LiaPage.tsx",
+      "sha256": "030aefccd5ceb3b3c24c32aa9668b5f85918a9ed0d633448af744ad374121ab1"
+    },
+    {
+      "path": "src/features/lia/voiceConversation.css",
+      "sha256": "c95bdf5da1c4f461bba1ea2267f1f6aa9c13009faa79aa12a77fe3aca72e0c1b"
+    },
+    {
+      "path": "src/features/lia/VoiceConversation.tsx",
+      "sha256": "de99d50c77edfbc9d469dff24c95a712e420d22b2091478672acf5334d0103d4"
+    },
+    {
+      "path": "src/features/safety/connectedSymptoms.css",
+      "sha256": "fd5fb11cde9da098f8b94879e3c4080086e9ac83d43e1b9bd1580dfafdb23595"
+    },
+    {
+      "path": "src/features/safety/connectedSymptoms.ts",
+      "sha256": "cfafb5dafee5ca3fa3df9fba74366837330d8c47b7d22dd17e426c87c986f419"
+    },
+    {
+      "path": "src/features/safety/ConnectedSymptomStatus.tsx",
+      "sha256": "cfb2e2baf6167cbfcef62eae0af540f78b86533509b3cbffd3f9501b18f085cf"
+    },
+    {
+      "path": "src/features/safety/demoScenarioEngine.ts",
+      "sha256": "38e09ee6a3465951d98dc43b504dac0406f58d36ee55aee2d52223de1f99e64d"
+    },
+    {
+      "path": "src/features/safety/safetyDemo.css",
+      "sha256": "6a078e53174085eb7dcc7907d9e4afcc72886fa79b9693a4c41ad8d5c9966ad5"
+    },
+    {
+      "path": "src/features/safety/SafetyDemo.tsx",
+      "sha256": "4b537cb0e659a34ff15dfd8a3ff34a2e2efe9de76364c74baa61546ae4bd089f"
+    },
+    {
+      "path": "src/features/safety/safetyState.ts",
+      "sha256": "203841d2eef31dcb0b790cd0113b9111c3d8e6703bce361cd6c39784513d7246"
+    },
+    {
+      "path": "src/features/voice/capture.ts",
+      "sha256": "9a1d95b3b381e601d994f6614dc83e95099e41c4a1e33a933322c0fbffae8ac6"
+    },
+    {
+      "path": "src/features/voice/conversationController.ts",
+      "sha256": "d692ed33540f83aada7155f61248fcf775dd6ab15f45c36d0994dc4750d9a712"
+    },
+    {
+      "path": "src/features/voice/liveConversationController.ts",
+      "sha256": "d995be49e034072e70be13087ca256ad52802e38da3ff6de38b51b9664a564cd"
+    },
+    {
+      "path": "src/features/voice/playback.ts",
+      "sha256": "1751ea1859546cfa2ccd186fd3bd5f47320fe3ae512ebfc4d5cbd14d31d0ba70"
+    },
+    {
+      "path": "src/features/voice/realtimeTranscription.ts",
+      "sha256": "e3291766d907ca644af6c2eeed2ac6a12cbc355d4c3ebda8443f67606d591d01"
+    },
+    {
+      "path": "src/features/voice/speechGate.ts",
+      "sha256": "162039d54843800801c67eaaedd81b79ebd39e29899461c9ee7855edfe4b30b0"
+    },
+    {
+      "path": "src/features/voice/turnDetector.ts",
+      "sha256": "4aa2e1fb65e4694e1d82baef915ddf65473574915ba7bdc8d828f877d6bd1b1a"
+    },
+    {
+      "path": "src/i18n/app.en.ts",
+      "sha256": "7571f625666fbc0e3d15e18d6c64595e16d789d811f77132830046059111f43d"
+    },
+    {
+      "path": "src/i18n/content.ts",
+      "sha256": "6928675d395884fc7f2cc6c3324727c33eaa4825c797fe986475ce77f4103d60"
+    },
+    {
+      "path": "src/i18n/date.ts",
+      "sha256": "6761bd29ca802a1fb65fa0466a15b70e8f2e886901a3e82571ad1e0b8aa2eb8a"
+    },
+    {
+      "path": "src/i18n/index.ts",
+      "sha256": "be466c6bb2061044127c282da8812c897bb8ef027ae1b6bfeba53add1824b7f8"
+    },
+    {
+      "path": "src/i18n/lia.en.ts",
+      "sha256": "fbe42447d72be5aae0a5900857d3ce19e8876a96839a882cccf7664e01932e86"
+    },
+    {
+      "path": "src/integrations/connected.css",
+      "sha256": "122397beaafcd649c6f0c08b90d0cae2ece0457f24a3d9878f2f9cd1cd3d3c9a"
+    },
+    {
+      "path": "src/integrations/ConnectedPanels.tsx",
+      "sha256": "95f8f452088de5e124b7745de2bc2256f1064a3ab2eab5e6b371d8b0871b8d3f"
+    },
+    {
+      "path": "src/integrations/connectedText.ts",
+      "sha256": "5fdc15718bb6f3193ab9d897f44f9d4e29bb887a81f180c165ee4eb37ccf5d73"
+    },
+    {
+      "path": "src/integrations/hospital/connection.ts",
+      "sha256": "0acde0c255e286b998345b500aec935594e13b207b2a1e396654413cdecbd283"
+    },
+    {
+      "path": "src/integrations/hospital/errors.ts",
+      "sha256": "56f6fb725a0ff42cd44238eb29025128a6dabe7811f25c50a68e585050e6e566"
+    },
+    {
+      "path": "src/integrations/hospital/repository.ts",
+      "sha256": "86c520b4b25b94a7b12b51c80ba2c06f276f8b56de22598d9fa335669a619fc1"
+    },
+    {
+      "path": "src/integrations/hospital/validation.ts",
+      "sha256": "cb585bfe3038d675511d2668cc152b21e2721b8144a8082764c76f44acb1c1d4"
+    },
+    {
+      "path": "src/integrations/nativeHttp.ts",
+      "sha256": "baf636d21c87296f5f5d4dee27fa72dbd63b07ec182b8706c07927465cc136c3"
+    },
+    {
+      "path": "src/integrations/patientIntegration.ts",
+      "sha256": "54089f217f43349017ebc93e0c1bb5583fa8c42fbcad3f34655dd557a71abc1f"
+    },
+    {
+      "path": "src/integrations/useConnectedPatient.ts",
+      "sha256": "087ac32bd9ae70f62e823319a531bfed03f72c8c1c069a0cbaca6802876c88ea"
+    },
+    {
+      "path": "src/main.tsx",
+      "sha256": "3927f2aa7dcbdaf0120a459523da7feba2490b23fb345ce10dfc24432b0f837e"
+    },
+    {
+      "path": "tests/e2e/checkin.spec.ts",
+      "sha256": "e6930bcd4d3eeeaa46037b7ab161616163e89ff9868176213b6370ad900f2b65"
+    },
+    {
+      "path": "tests/e2e/compact-home.spec.ts",
+      "sha256": "76979bebdf7ccfd3ddb54d71be26abf5149815cb0f96b7b5ea658eea9f7ae250"
+    },
+    {
+      "path": "tests/e2e/connected.spec.ts",
+      "sha256": "29b2a16e44eea9789cd06590dc5749ad89052889d6f5a6d403eec92be6cf0d38"
+    },
+    {
+      "path": "tests/e2e/conversation.spec.ts",
+      "sha256": "606ffe92985d9b11108aff981f37e2133b7a6933fde61d0f41eb6f6c121520ea"
+    },
+    {
+      "path": "tests/e2e/experience.spec.ts",
+      "sha256": "91f2f62f1351afd8466508a902dd5dacec2dcc13ed90bb27d3809533dbf2201d"
+    },
+    {
+      "path": "tests/e2e/helpers/connectedAgent.ts",
+      "sha256": "689c5f58e2902db724ef7e46c06cdc2479c73b8e9253e2c73f69854f809f6d7e"
+    },
+    {
+      "path": "tests/e2e/home.spec.ts",
+      "sha256": "972f5b392f6b9e2bcb2e99c8dacf20848582bbe03f3708eb76660176a0bac41b"
+    },
+    {
+      "path": "tests/e2e/i18n.spec.ts",
+      "sha256": "52ffa38a696415e90c5c37f852ee4e94dde76460635ceaca7ad074ded3c456c3"
+    },
+    {
+      "path": "tests/e2e/lia-actions.spec.ts",
+      "sha256": "60fc0e21b57678eefdc42623771b6467535d40563a4758e390d324e91e1b95b7"
+    },
+    {
+      "path": "tests/e2e/lia-language.spec.ts",
+      "sha256": "0a26b6ed4369bd1472df0e8169571d7c9070c5549319bbc378eee955677e554a"
+    },
+    {
+      "path": "tests/e2e/lia.spec.ts",
+      "sha256": "f79c4d585f17555bda53769ecf6cf2ac225615694fe6aaf7d6b6f8017112a2f0"
+    },
+    {
+      "path": "tests/e2e/shell.spec.ts",
+      "sha256": "1747de6ce9de69057f8c15897ee3b67eeb70127861c27072c47ed94ad4e6bc11"
+    },
+    {
+      "path": "tests/e2e/ui-v07.spec.ts",
+      "sha256": "4b7f954e6c58466b6cdcfba2b51b1f62738c63c681a61b253240b25e9b4d9897"
+    },
+    {
+      "path": "tests/unit/capture-localization.test.ts",
+      "sha256": "bef91df213bb8dd54d860e1a7901166492ac04d50bfdd0a5316744525591854c"
+    },
+    {
+      "path": "tests/unit/capture.test.ts",
+      "sha256": "717a9284265bc0bcbdea3b7975acab8ef165c7bc7d76ab10c04c80ad05228359"
+    },
+    {
+      "path": "tests/unit/connectedPatient.test.ts",
+      "sha256": "460c3afe4ca962af54452c623a396a74f3b0957c2e8a28331b78228eda479600"
+    },
+    {
+      "path": "tests/unit/connectedSymptoms.test.ts",
+      "sha256": "7b66fd107647c58a73c0c1f8eba3f521930ba5ca4f6bd081a13e65e10234ec8a"
+    },
+    {
+      "path": "tests/unit/conversationController.test.ts",
+      "sha256": "2a2d5a0015586852e105deba1dd4dcf5a2036c7d8b7551a4fa1d4a9e1ecdb3b0"
+    },
+    {
+      "path": "tests/unit/hospitalIntegration.test.ts",
+      "sha256": "c9ca36863d728b320da1a7aa0a24145dc2163fca70a9a686441be39c5140e32a"
+    },
+    {
+      "path": "tests/unit/hospitalSymptoms.test.ts",
+      "sha256": "928178d793a5b2ed0efe7b54fa65435438770f4794e1914be25521716098cb80"
+    },
+    {
+      "path": "tests/unit/i18n.test.ts",
+      "sha256": "d0790734c6ab61af8674a67593326591a7d9a5b67a61b0216f213f706aba9162"
+    },
+    {
+      "path": "tests/unit/lia-localization.test.ts",
+      "sha256": "6cbe6e0b05aefdc23fbfbe525629d24c81ea48190ade07dfcc37b724ab3142f2"
+    },
+    {
+      "path": "tests/unit/liaActions.test.ts",
+      "sha256": "c023f60ae406dbf3141a81bafc857f673a51d551dd309baf581579940dd1f532"
+    },
+    {
+      "path": "tests/unit/liaAppBridge.test.ts",
+      "sha256": "5e0c806cd4cd44ba0dba43fa85530caae6f0c2f29e1d2bcedc9255a856c20fa7"
+    },
+    {
+      "path": "tests/unit/liaProvider.test.ts",
+      "sha256": "75662a67fefd77ba4661434d7548c2b99b130eb12c4f273f5a19cadf5ce08e2a"
+    },
+    {
+      "path": "tests/unit/liveConversationController.test.ts",
+      "sha256": "ee8a8acaff87fa77dae9e5121d7a6c0ae0f196485fc6f49917f1a9d5a5d87e8d"
+    },
+    {
+      "path": "tests/unit/nativeHospitalHttp.test.ts",
+      "sha256": "b2d028d07168436be1552d3779c57d1de0ad96f78c26189da9b376608ef91287"
+    },
+    {
+      "path": "tests/unit/patientData.test.ts",
+      "sha256": "fb3e58a48bb11d8af93b94cf379920b16df844857830f2e301dc905c78e978ba"
+    },
+    {
+      "path": "tests/unit/playback.test.ts",
+      "sha256": "d428c53c6d938c8f359c5f1c48712578e985a0931486de7f1fe694db9bab2ec0"
+    },
+    {
+      "path": "tests/unit/realtimeTranscription.test.ts",
+      "sha256": "00ce9dc05cf979ea12eb2fd8839527a82f5e418ac39153947657666d27e3a0f2"
+    },
+    {
+      "path": "tests/unit/safety-demo.test.ts",
+      "sha256": "233da7a8eb7ffb6c05832c14aea1fa660bbed2f42a95bf7f2b6a0882cb0aaf37"
+    },
+    {
+      "path": "tests/unit/session.test.ts",
+      "sha256": "4cd48bc89edb5037afb8090e3d457911f03ed754409a121f06cb612c5dea2c85"
+    },
+    {
+      "path": "tests/unit/speechGate.test.ts",
+      "sha256": "3b8dafa79b6f16d2bf6f0434b3127631900a188922d8b199aa7e26398280a665"
+    },
+    {
+      "path": "tsconfig.json",
+      "sha256": "4fc9d383541313365b03beaf91fa93dc13e1f75c1aed73f0e9253a74693923c8"
+    },
+    {
+      "path": "vite.config.ts",
+      "sha256": "4e94267d3a4771512ee172b018613c4212f43cbaf68330ba84adaff9f0f81471"
+    },
+    {
+      "path": "vitest.config.ts",
+      "sha256": "87b60dd87e7089d766b5ab7b2aa857fea6138f2dbf98d9f43f01de33cf8764c4"
+    }
+  ]
+}

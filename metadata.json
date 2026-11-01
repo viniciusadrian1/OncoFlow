@@ -1,0 +1,8 @@
+{
+  "name": "OncoFlow — Cada etapa do cuidado, conectada",
+  "description": "Coordenação da jornada oncológica: painel da equipe (base IRIS) e app do paciente com a assistente Lia. Demonstração com dados fictícios.",
+  "requestFramePermissions": [
+    "microphone"
+  ],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

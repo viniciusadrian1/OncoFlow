@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#eef4f5">
+  <title>OncoFlow Casa | Protótipo</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/style.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <svg class="icons" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="smile" viewBox="0 0 32 32"><circle cx="16" cy="16" r="12"/><path d="M10 19q6 7 12 0M11 11v2m10-2v2"/></symbol>
+    <symbol id="neutral" viewBox="0 0 32 32"><circle cx="16" cy="16" r="12"/><path d="M10 21h12M11 11v2m10-2v2"/></symbol>
+    <symbol id="chat" viewBox="0 0 32 32"><path d="M27 15a11 11 0 0 1-16 10l-7 3 2-8a11 11 0 1 1 21-5Z"/><path d="M10 14h12m-12 5h8"/></symbol>
+    <symbol id="check" viewBox="0 0 32 32"><path d="m8 16 6 6 12-13"/></symbol>
+  </svg>
+  <header class="masthead">
+    <a class="brand" href="/" aria-label="OncoFlow Casa, início">
+      <svg viewBox="0 0 40 40" aria-hidden="true"><path d="M8 23c0-16 24-16 24-4S8 34 8 23Z"/><circle cx="9" cy="22" r="4"/><circle cx="30" cy="16" r="4"/></svg>
+      <span>onco<span class="brand-light">flow</span></span><span class="brand-tag">casa</span>
+    </a>
+    <span class="demo-label"><span></span>Protótipo com dados fictícios</span>
+  </header>
+  <main>
+    <section class="intro">
+      <div><p class="intro-label">Da casa para a equipe de cuidado</p><h1>Um pequeno gesto.<br>Uma conversa que continua.</h1></div>
+      <p class="intro-text">Experimente o aparelho à esquerda.<br>Cada toque vira um registro no painel ao lado.</p>
+    </section>
+    <div class="workspace">
+      <section class="home-side" aria-labelledby="home-title">
+        <div class="section-heading"><h2 id="home-title">Na casa do paciente</h2><span class="small-tag">Simulador</span></div>
+        <div class="device-stage">
+          <div class="device">
+            <div class="device-top"><span class="device-brand">oncoflow casa</span><span id="device-led" class="device-led"></span></div>
+            <div class="device-screen" aria-live="polite" aria-atomic="true">
+              <div class="screen-top"><span id="screen-date">Hoje</span><span id="screen-network">Conectando</span></div>
+              <div class="screen-content"><svg id="screen-icon" class="screen-icon" aria-hidden="true"><use href="#smile"/></svg><p id="screen-title">Como você está hoje?</p><span id="screen-detail">Escolha um dos botões abaixo</span></div>
+            </div>
+            <div class="device-buttons">
+              <button class="device-button good" data-value="bem" aria-label="Estou bem"><span class="physical-key"><svg aria-hidden="true"><use href="#smile"/></svg></span><span>Estou<br>bem</span></button>
+              <button class="device-button discomfort" data-value="desconforto" aria-label="Tenho desconforto"><span class="physical-key"><svg aria-hidden="true"><use href="#neutral"/></svg></span><span>Tenho<br>desconforto</span></button>
+              <button class="device-button contact" data-value="contato" aria-label="Quero conversar"><span class="physical-key"><svg aria-hidden="true"><use href="#chat"/></svg></span><span>Quero<br>conversar</span></button>
+            </div>
+            <div class="device-bottom"><span class="speaker"><i></i><i></i><i></i><i></i><i></i></span><span>Um toque por vez</span></div>
+          </div>
+          <div class="device-shadow"></div>
+        </div>
+        <p class="device-caption">Três botões grandes. Nenhum aplicativo para abrir.</p>
+        <div class="delivery" aria-live="polite"><span id="delivery-dot"></span><p id="delivery-text">Pronto para experimentar</p><button id="retry" type="button" hidden>Tentar envio</button></div>
+        <p class="contact-note">“Quero conversar” demonstra um pedido de contato. Não aciona atendimento ou emergência.</p>
+      </section>
+      <section class="care-side" aria-labelledby="care-title">
+        <div class="section-heading"><h2 id="care-title">Na equipe de cuidado</h2><span id="connection" class="connection"><i></i>Conectando</span></div>
+        <div class="patient-header"><div class="avatar" aria-hidden="true">P</div><div><h3>Paciente demonstração</h3><p>Identificação fictícia 001</p></div><span class="patient-device">Aparelho<br><strong>Casa 001</strong></span></div>
+        <div class="latest"><div><span class="label">Último registro recebido</span><p id="latest-text">Aguardando o primeiro toque</p><span id="latest-time">O registro aparecerá aqui após o envio.</span></div><svg id="latest-icon" aria-hidden="true"><use href="#smile"/></svg></div>
+        <div id="contact-banner" class="contact-banner" hidden><svg aria-hidden="true"><use href="#chat"/></svg><div><strong id="contact-count">Pedido de contato</strong><p>Aguardando revisão no painel de demonstração.</p></div></div>
+        <div class="timeline-header"><h3>Histórico de registros <span id="event-count">0</span></h3><button id="export" class="text-button" disabled>Exportar CSV</button></div>
+        <div id="timeline" class="timeline"><div class="empty"><svg aria-hidden="true"><use href="#chat"/></svg><p>A história começa com um toque.</p><span>Use um dos três botões do aparelho para enviar o primeiro registro.</span></div></div>
+        <div class="panel-foot"><span>Origem e horário em cada registro</span><span>Horário de Brasília</span></div>
+      </section>
+    </div>
+    <footer><p>OncoFlow Casa <span>Prova de conceito de acompanhamento entre consultas</span></p><p>Painel independente · Sem conexão com a plataforma clínica</p></footer>
+  </main>
+  <template id="event-template"><article class="event"><span class="event-marker"><svg aria-hidden="true"><use href="#smile"/></svg></span><div class="event-body"><div class="event-top"><strong></strong><time></time></div><p class="event-origin"></p><div class="event-action"></div></div></article></template>
+</body>
+</html>

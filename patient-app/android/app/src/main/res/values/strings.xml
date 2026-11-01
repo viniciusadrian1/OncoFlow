@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">OncoFlow</string>
+    <string name="title_activity_main">OncoFlow</string>
+    <string name="package_name">br.com.oncoflow.paciente</string>
+    <string name="custom_url_scheme">br.com.oncoflow.paciente</string>
+</resources>

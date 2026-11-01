@@ -1,0 +1,46 @@
+# Segredos (o exemplo fica versionado)
+.env*
+*.env.local
+!.env.example
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Node e builds
+node_modules/
+build/
+dist/
+coverage/
+*.tsbuildinfo
+*.log
+outputs/.oncoflow-demo/
+output/apk/
+public/app/
+patient-app/public/vad/*
+!patient-app/public/vad/LICENSE-*.txt
+patient-app/android/app/src/main/assets/
+patient-app/android/capacitor-cordova-android-plugins/
+**/.gradle/
+**/local.properties
+*.apk
+*.aab
+*.jks
+*.keystore
+
+# Relatórios gerados e artefatos de teste
+reports/avaliacao_*.md
+playwright-report/
+test-results/
+.playwright-cli/
+
+# Áudio gravado (nunca versionar voz; fixtures fictícias ficam em fixtures/audio)
+*.webm
+*.wav
+!fixtures/audio/**
+
+# Sistema
+.DS_Store
+Thumbs.db

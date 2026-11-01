@@ -1,0 +1,22 @@
+{
+  "id": "mama-fertilidade",
+  "descricao": "Consulta fictícia da demo (caso do documento de produto). Sem orientação clínica real.",
+  "segmentos": [
+    {"codigo": "s01", "interlocutor": "medico", "inicio_ms": 0, "texto": "Bom dia, Maria. Como você tem se sentido desde a última vez que conversamos?"},
+    {"codigo": "s02", "interlocutor": "paciente", "inicio_ms": 6000, "texto": "Bom dia, doutora. Ando mais cansada, principalmente no fim da tarde."},
+    {"codigo": "s03", "interlocutor": "medico", "inicio_ms": 12000, "texto": "Entendi. Esse cansaço atrapalha suas atividades do dia a dia?"},
+    {"codigo": "s04", "interlocutor": "paciente", "inicio_ms": 17000, "texto": "Um pouco. Ainda estou trabalhando, mas chego em casa sem energia."},
+    {"codigo": "s05", "interlocutor": "medico", "inicio_ms": 24000, "texto": "Hoje eu queria explicar as próximas etapas e ouvir suas dúvidas."},
+    {"codigo": "s06", "interlocutor": "paciente", "inicio_ms": 30000, "texto": "Tenho uma dúvida que está me tirando o sono. Eu e meu marido queremos ter filhos."},
+    {"codigo": "s07", "interlocutor": "paciente", "inicio_ms": 37000, "texto": "Tenho medo de o tratamento afetar minha fertilidade."},
+    {"codigo": "s08", "interlocutor": "medico", "inicio_ms": 42000, "texto": "É muito importante você ter trazido isso. Vamos considerar esse ponto no planejamento."},
+    {"codigo": "s09", "interlocutor": "medico", "inicio_ms": 50000, "texto": "Antes de começar o tratamento, você vai precisar fazer alguns exames pré-tratamento."},
+    {"codigo": "s10", "interlocutor": "paciente", "inicio_ms": 57000, "texto": "Esses exames precisam de autorização do convênio?"},
+    {"codigo": "s11", "interlocutor": "medico", "inicio_ms": 61000, "texto": "Alguns sim. A equipe de navegação vai te ajudar com isso."},
+    {"codigo": "s12", "interlocutor": "paciente", "inicio_ms": 66000, "texto": "Outra coisa: eu moro longe. Se der para fazer os exames no mesmo dia, me ajuda muito."},
+    {"codigo": "s13", "interlocutor": "medico", "inicio_ms": 74000, "texto": "Vamos ver o que é possível. Alguma outra preocupação?"},
+    {"codigo": "s14", "interlocutor": "paciente", "inicio_ms": 79000, "texto": "Só o trabalho mesmo. Não sei se vou conseguir manter o emprego durante o tratamento."},
+    {"codigo": "s15", "interlocutor": "medico", "inicio_ms": 87000, "texto": "Podemos te apresentar o apoio psicossocial do serviço, se você quiser."},
+    {"codigo": "s16", "interlocutor": "paciente", "inicio_ms": 93000, "texto": "Quero sim, obrigada."}
+  ]
+}

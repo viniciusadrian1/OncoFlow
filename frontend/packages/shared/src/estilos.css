@@ -1,0 +1,25 @@
+/* Fonte servida localmente (sem Google Fonts): a demo precisa funcionar sem internet */
+@import "@fontsource-variable/inter";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-white font-sans text-texto antialiased;
+  }
+
+  :focus-visible {
+    @apply outline outline-[3px] outline-offset-2 outline-marca-azul;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}

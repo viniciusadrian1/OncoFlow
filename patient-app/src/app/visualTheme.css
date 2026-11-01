@@ -1,0 +1,476 @@
+/* Patient app adaptation of the approved OncoFlow visual kit. */
+:root {
+  --of-ink: #103b4b;
+  --of-muted: #5a6b73;
+  --of-primary: #06576a;
+  --of-teal: #087b80;
+  --of-mint: #50c6bb;
+  --of-sky: #41b9df;
+  --of-bg: #f6f9fa;
+  --of-surface: #ffffff;
+  --of-soft: #e5f2f4;
+  --of-line: #d8e7e9;
+  --of-radius-card: 22px;
+  --of-radius-button: 28px;
+  --of-shadow: 0 8px 28px #154a5710;
+  --navy: var(--of-ink);
+  --teal: var(--of-teal);
+  --accent: var(--of-teal);
+  --mist: var(--of-soft);
+  --muted: var(--of-muted);
+  --line: var(--of-line);
+  --paper: var(--of-bg);
+  color: var(--of-ink);
+  background: #eaf2f5;
+}
+.oncoflow-app {
+  background: var(--of-bg);
+}
+.oncoflow-app .brand-header {
+  height: 52px;
+  padding: 2px 20px;
+  background: var(--of-bg);
+}
+.oncoflow-app .brand-header > img {
+  width: 128px;
+  max-height: 36px;
+}
+.language-selector {
+  display: grid;
+  gap: 8px;
+  margin: 16px 0;
+}
+.language-selector label {
+  font-size: calc(14px * var(--text-scale));
+  font-weight: 650;
+  margin: 0;
+}
+.language-selector select {
+  width: 100%;
+  min-width: 0;
+  min-height: 48px;
+  padding: 12px 10px;
+  border: 1px solid var(--of-line);
+  border-radius: 12px;
+  background: var(--of-surface);
+  color: var(--of-ink);
+  font-size: calc(15px * var(--text-scale));
+}
+.oncoflow-app .demo-banner {
+  background: #edf4f5;
+  color: #4d6871;
+  border-color: var(--of-line);
+  font-size: calc(14px * var(--text-scale));
+  line-height: 1.45;
+  padding: 7px 20px;
+}
+.oncoflow-app .content {
+  padding-top: 22px;
+}
+.oncoflow-app .eyebrow {
+  color: var(--of-teal);
+}
+.oncoflow-app .card,
+.oncoflow-app .row-button,
+.oncoflow-app .timeline-card {
+  border-radius: var(--of-radius-card);
+  box-shadow: var(--of-shadow);
+}
+.oncoflow-app .primary {
+  background: linear-gradient(110deg, var(--of-primary), var(--of-teal));
+  border-radius: var(--of-radius-button);
+  min-height: 52px;
+  box-shadow: 0 5px 18px #07637518;
+  font-size: calc(16px * var(--text-scale));
+}
+.oncoflow-app .secondary {
+  border-radius: var(--of-radius-button);
+  min-height: 52px;
+  border-color: var(--of-primary);
+  font-size: calc(16px * var(--text-scale));
+}
+.oncoflow-app .icon-tile {
+  color: var(--of-teal);
+  background: var(--of-soft);
+}
+.oncoflow-app .tag {
+  border-radius: 12px;
+}
+.oncoflow-app .tag.green {
+  color: #0b6665;
+  background: #def3ef;
+}
+.oncoflow-app .footnote,
+.oncoflow-app .reassurance,
+.oncoflow-app .welcome-foot {
+  color: var(--of-muted);
+}
+.oncoflow-app .back-button,
+.oncoflow-app .text-button,
+.oncoflow-app .icon-button {
+  min-height: 48px;
+}
+.oncoflow-app .icon-button {
+  min-width: 48px;
+}
+.oncoflow-app .bottom-nav {
+  background: #f6f9faf5;
+  border-color: var(--of-line);
+}
+.oncoflow-app .bottom-nav .active {
+  color: var(--of-primary);
+}
+.oncoflow-app .bottom-nav .active .nav-icon {
+  background: var(--of-soft);
+}
+.oncoflow-app .bottom-nav .lia-nav .nav-icon {
+  background: var(--of-primary);
+  color: white;
+  box-shadow: 0 3px 12px #06576a26;
+}
+.oncoflow-app .brand-orb {
+  background: none;
+  box-shadow: none;
+  overflow: visible;
+  animation: none;
+}
+.oncoflow-app .brand-orb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 6px 12px #2dbbb829);
+}
+.oncoflow-app .welcome-copy em {
+  color: var(--of-teal);
+}
+.oncoflow-app .welcome-art .brand-orb {
+  width: 160px;
+  height: 160px;
+}
+.oncoflow-app .info-box {
+  border-radius: 18px;
+  background: #eaf3f5;
+  border-color: var(--of-line);
+}
+.oncoflow-app .info-box p,
+.oncoflow-app .document-body p,
+.oncoflow-app .sheet p {
+  font-size: calc(18px * var(--text-scale));
+}
+.home-screen {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.oncoflow-app .content.page-home {
+  padding-top: 12px;
+}
+.home-screen .greeting h1 {
+  margin: 0 0 4px;
+  font-size: calc(26px * var(--text-scale));
+  letter-spacing: -0.8px;
+}
+.home-screen .greeting > p {
+  font-size: calc(15px * var(--text-scale));
+  line-height: 1.5;
+}
+.home-screen .greeting {
+  margin-bottom: 0;
+}
+.home-appointment {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+  min-width: 0;
+  padding: 14px;
+  border: 0;
+  border-radius: 22px;
+  text-align: left;
+  background: linear-gradient(125deg, #075469, #064a5b);
+  color: white;
+  box-shadow: 0 8px 20px #0754691c;
+}
+.home-appointment > svg {
+  margin-top: 3px;
+  width: 26px;
+  height: 26px;
+}
+.home-appointment-copy {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  flex: 1;
+}
+.home-appointment-copy > small {
+  font-size: calc(13px * var(--text-scale));
+  color: #e7f8fa;
+}
+.home-appointment-copy > strong {
+  font-size: calc(22px * var(--text-scale));
+  line-height: 1.25;
+  text-transform: capitalize;
+  font-weight: 750;
+}
+.home-appointment-copy > span {
+  font-size: calc(15px * var(--text-scale));
+  line-height: 1.45;
+}
+.home-appointment-copy .home-appointment-name {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.home-appointment-copy .home-appointment-place {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  font-size: calc(13px * var(--text-scale));
+  color: #e2f4f6;
+}
+.home-shortcuts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.home-shortcut {
+  border: 0;
+  border-radius: 22px;
+  background: #e2f0f3;
+  min-height: 84px;
+  padding: 10px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-width: 0;
+}
+.home-shortcut:nth-child(n + 3) {
+  background: #e9f2f5;
+}
+.home-shortcut > svg {
+  color: #147486;
+  width: 26px;
+  height: 26px;
+}
+.home-shortcut strong {
+  font-size: calc(15px * var(--text-scale));
+  line-height: 1.35;
+  font-weight: 600;
+}
+.home-shortcut small {
+  font-size: calc(12px * var(--text-scale));
+  color: var(--of-muted);
+  line-height: 1.35;
+}
+.home-lia-cta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+  width: 100%;
+  min-width: 0;
+  background: linear-gradient(110deg, #066679, #034f61);
+  color: #fff;
+  border: 0;
+  border-radius: 25px;
+  padding: 10px 14px;
+  min-height: 72px;
+  margin-top: 0;
+  box-shadow: 0 8px 20px #00687a24;
+}
+.home-lia-cta .orb-small {
+  width: 44px;
+  height: 44px;
+}
+.home-lia-cta > span {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  flex: 1;
+}
+.home-lia-cta strong {
+  font-size: calc(17px * var(--text-scale));
+  line-height: 1.3;
+}
+.home-lia-cta small {
+  color: #e3f5f6;
+  font-size: calc(13px * var(--text-scale));
+  line-height: 1.45;
+}
+.home-screen > .row-button {
+  margin-top: 4px;
+}
+.home-screen .reassurance {
+  margin-top: 2px;
+}
+.checkin-screen .page-title {
+  text-align: center;
+  margin: 15px 0 24px;
+}
+.checkin-screen .page-title h1 {
+  font-size: calc(25px * var(--text-scale));
+  line-height: 1.35;
+  letter-spacing: -0.7px;
+}
+.checkin-screen .page-title > .eyebrow {
+  display: none;
+}
+.checkin-screen .page-title > p:last-child {
+  font-size: calc(16px * var(--text-scale));
+  line-height: 1.5;
+}
+.checkin-screen .mood-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+}
+.checkin-screen .mood-option {
+  position: relative;
+  min-height: 125px;
+  padding: 19px 12px;
+  gap: 12px;
+  border: 2px solid transparent;
+  border-radius: 22px;
+  background: var(--feeling-bg);
+  font-size: calc(16px * var(--text-scale));
+  line-height: 1.35;
+}
+.tone-well {
+  --feeling-bg: #e8f5ed;
+  --face-bg: #d8efca;
+  --face-color: #3b7c31;
+}
+.tone-tired {
+  --feeling-bg: #fcf5e5;
+  --face-bg: #ffe4aa;
+  --face-color: #9b650e;
+}
+.tone-pain {
+  --feeling-bg: #f9eeee;
+  --face-bg: #ffd3c9;
+  --face-color: #ad443b;
+}
+.tone-nausea {
+  --feeling-bg: #e8f4f0;
+  --face-bg: #bde9d9;
+  --face-color: #247360;
+}
+.tone-anxious {
+  --feeling-bg: #efedfb;
+  --face-bg: #dcd5ff;
+  --face-color: #615297;
+}
+.tone-other {
+  --feeling-bg: #ebf2f5;
+  --face-bg: #fff;
+  --face-color: #526b77;
+}
+.feeling-icon {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--face-bg);
+  color: var(--face-color);
+}
+.checkin-screen .mood-option.selected {
+  background: var(--feeling-bg);
+  border-color: var(--of-teal);
+  box-shadow: 0 0 0 3px #fff inset;
+}
+.feeling-check {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  color: var(--of-primary);
+}
+.checkin-actions {
+  display: grid;
+  gap: 13px;
+  margin-top: 24px;
+}
+.checkin-actions .saved-mood {
+  margin: 0 0 3px;
+  text-align: center;
+  font-size: calc(15px * var(--text-scale));
+}
+.checkin-actions .checkin-later {
+  justify-self: center;
+  text-decoration: underline;
+  margin: 0;
+}
+.checkin-screen > .footnote {
+  text-align: center;
+  font-size: calc(14px * var(--text-scale));
+  margin-top: 10px;
+}
+.large-text .home-shortcuts,
+.large-text .checkin-screen .mood-options {
+  grid-template-columns: 1fr;
+}
+.large-text .home-appointment {
+  flex-wrap: wrap;
+}
+.large-text .home-appointment-copy {
+  flex-basis: 100%;
+}
+.large-text .home-lia-cta {
+  flex-wrap: wrap;
+}
+.large-text .home-lia-cta > span {
+  flex-basis: 65%;
+}
+@media (max-width: 370px) {
+  .home-appointment {
+    padding: 12px;
+    gap: 10px;
+  }
+  .home-lia-cta {
+    gap: 8px;
+    padding: 12px;
+  }
+  .home-lia-cta .orb-small {
+    width: 42px;
+    height: 42px;
+  }
+  .home-lia-cta > svg:last-child {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .oncoflow-app *,
+  .oncoflow-app *::before,
+  .oncoflow-app *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* Details opened by Lia leave the live microphone controls reachable. */
+.oncoflow-app .assisted-sheet[open] {
+  position: fixed;
+  z-index: 35;
+  inset: auto 12px
+    calc(var(--lia-dock-height, 0px) + var(--lia-dock-bottom, 90px) + 12px);
+  width: min(calc(100% - 24px), 496px);
+  margin: 0 auto;
+  max-height: max(
+    100px,
+    calc(
+      100dvh - var(--lia-dock-height, 0px) - var(--lia-dock-bottom, 90px) -
+        var(--safe-top, 0px) - 36px
+    )
+  );
+  border: 1px solid var(--of-line);
+  border-radius: 24px;
+  overflow-y: auto;
+}

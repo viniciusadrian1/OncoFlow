@@ -1,0 +1,564 @@
+.lia-live {
+  --lia-ink: #103b4b;
+  --lia-muted: #526b76;
+  --lia-teal: #087b80;
+  --lia-line: #d8e7e9;
+  min-width: 0;
+  color: var(--lia-ink);
+  background: #f6f9fa;
+  font-size: calc(18px * var(--text-scale, 1));
+  overflow-wrap: anywhere;
+}
+.lia-live p {
+  color: var(--lia-ink);
+  font-size: calc(18px * var(--text-scale, 1));
+  line-height: 1.65;
+}
+.lia-live button {
+  min-width: 48px;
+  min-height: 48px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.5;
+}
+.lia-live button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.lia-live button:focus-visible,
+.lia-live input:focus-visible {
+  outline: 3px solid var(--lia-teal);
+  outline-offset: 3px;
+}
+.lia-live .primary,
+.lia-live .secondary,
+.lia-live .text-button {
+  border-radius: 28px;
+  padding: 12px 18px;
+  font-size: calc(16px * var(--text-scale, 1));
+  font-weight: 650;
+}
+.lia-live .primary {
+  color: #fff;
+  border: 1px solid #06576a;
+  background: linear-gradient(110deg, #06576a, #087b80);
+  box-shadow: 0 5px 16px #07637514;
+}
+.lia-live .secondary {
+  color: #06576a;
+  border: 1px solid #b7d3db;
+  background: #fff;
+}
+.lia-live .text-button {
+  color: #06576a;
+  text-align: left;
+}
+.lia-chat-header {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 2px 0 12px;
+}
+.lia-header-orb {
+  display: block;
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+}
+.lia-header-copy {
+  min-width: 0;
+}
+.lia-chat-header h1 {
+  margin: 0;
+  font-size: calc(24px * var(--text-scale, 1));
+  line-height: 1.25;
+  letter-spacing: -0.6px;
+}
+.lia-live .lia-header-copy p {
+  margin-top: 4px;
+  color: var(--lia-muted);
+  font-size: calc(14px * var(--text-scale, 1));
+}
+.lia-status-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 18px;
+}
+.lia-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--lia-teal);
+}
+.lia-live .lia-state {
+  color: var(--lia-muted);
+  font-size: calc(14px * var(--text-scale, 1));
+  font-weight: 550;
+}
+.lia-consent,
+.lia-call-panel {
+  border: 1px solid var(--lia-line);
+  border-radius: 24px;
+  margin: 0 0 22px;
+  padding: 20px;
+}
+.lia-consent {
+  background: #fff;
+  box-shadow: 0 8px 28px #154a5708;
+}
+.lia-consent h2,
+.lia-call-heading h2 {
+  margin: 0;
+  font-size: calc(18px * var(--text-scale, 1));
+  line-height: 1.45;
+  letter-spacing: -0.25px;
+}
+.lia-consent p {
+  margin: 10px 0 18px;
+}
+.lia-call-panel {
+  display: grid;
+  gap: 16px;
+  background: #e9f3f5;
+}
+.lia-live .lia-call-heading p {
+  margin: 5px 0 0;
+  color: var(--lia-muted);
+  font-size: calc(14px * var(--text-scale, 1));
+}
+.lia-welcome,
+.lia-message.assistant {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr);
+  align-items: start;
+  gap: 10px;
+}
+.lia-welcome {
+  margin: 24px 0 18px;
+}
+.lia-avatar {
+  display: block;
+  width: 32px;
+  height: 32px;
+  margin-top: 9px;
+}
+.lia-bubble {
+  min-width: 0;
+  padding: 18px;
+  border-radius: 8px 24px 24px 24px;
+  background: #fff;
+  box-shadow: 0 8px 28px #154a5708;
+}
+.lia-welcome strong {
+  display: block;
+  font-size: calc(18px * var(--text-scale, 1));
+  font-weight: 650;
+  line-height: 1.5;
+}
+.lia-welcome p {
+  margin-top: 10px;
+}
+.lia-messages {
+  display: grid;
+  gap: 24px;
+  margin: 24px 0;
+}
+.lia-messages:empty {
+  display: none;
+}
+.lia-message {
+  min-width: 0;
+}
+.lia-message.user {
+  margin-left: 42px;
+}
+.lia-message.user .lia-bubble {
+  border-radius: 24px 24px 8px 24px;
+  background: #e3f0f3;
+  box-shadow: none;
+}
+.lia-message-author {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--lia-muted);
+  font-size: calc(14px * var(--text-scale, 1));
+  font-weight: 600;
+}
+.lia-message p {
+  margin: 0;
+  white-space: pre-wrap;
+}
+.lia-message-actions {
+  display: grid;
+  gap: 8px;
+  grid-column: 2;
+}
+.lia-live .lia-action {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  width: 100%;
+  min-width: 0;
+  padding: 12px 15px;
+  border: 1px solid transparent;
+  border-radius: 18px;
+  background: #eaf2f5;
+}
+.lia-live .lia-options {
+  display: grid;
+  gap: 9px;
+  margin: 20px 0 24px;
+}
+.lia-live .lia-options > button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid transparent;
+  border-radius: 18px;
+  background: #eaf2f5;
+  color: #06576a;
+  font-size: calc(16px * var(--text-scale, 1));
+  font-weight: 550;
+  text-align: left;
+}
+.lia-options > button > span {
+  min-width: 0;
+  flex: 1;
+}
+.lia-composer {
+  min-width: 0;
+  margin: 24px 0;
+}
+.lia-composer > label:first-of-type {
+  display: block;
+  margin: 0 0 10px;
+  color: var(--lia-muted);
+  font-size: calc(14px * var(--text-scale, 1));
+  font-weight: 600;
+}
+.lia-input-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px;
+  border: 1px solid var(--lia-line);
+  border-radius: 28px;
+  background: #fff;
+  box-shadow: 0 8px 28px #154a5708;
+}
+.lia-input-row:focus-within {
+  outline: 3px solid var(--lia-teal);
+  outline-offset: 3px;
+}
+.lia-composer textarea {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 70px;
+  flex: 1;
+  resize: vertical;
+  box-sizing: border-box;
+  border: 0;
+  border-radius: 22px;
+  background: transparent;
+  color: var(--lia-ink);
+  padding: 12px;
+  font: inherit;
+  font-size: calc(18px * var(--text-scale, 1));
+  line-height: 1.5;
+}
+.lia-composer textarea::placeholder {
+  color: #607580;
+  opacity: 1;
+}
+.lia-composer textarea:focus {
+  outline: none;
+}
+.lia-send {
+  display: grid;
+  place-items: center;
+  flex: 0 0 48px;
+  align-self: center;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: #e5f2f4;
+  color: #087b80;
+}
+.lia-composer-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 12px 0;
+}
+.lia-composer-actions .lia-record {
+  flex: 1 1 180px;
+}
+.lia-composer .lia-toggle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 48px;
+  margin: 14px 0 10px;
+  color: var(--lia-muted);
+  font-size: calc(16px * var(--text-scale, 1));
+  line-height: 1.5;
+}
+.lia-toggle input {
+  width: 22px;
+  height: 22px;
+  margin: 0;
+  flex-shrink: 0;
+  accent-color: var(--lia-teal);
+}
+.lia-review {
+  border-left: 4px solid var(--lia-teal);
+  border-radius: 4px;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  background: #e5f2f4;
+}
+.lia-live .lia-error {
+  border: 1px solid #e3c7b7;
+  border-left: 4px solid #a34f29;
+  padding: 16px;
+  margin: 18px 0;
+  background: #fff2e9;
+  color: #69351d;
+  border-radius: 16px;
+}
+.lia-live .lia-footnote {
+  color: var(--lia-muted);
+  font-size: calc(14px * var(--text-scale, 1));
+  line-height: 1.65;
+}
+.lia-demo-panel {
+  min-width: 0;
+  padding-top: 20px;
+  border-top: 1px solid var(--lia-line);
+}
+.lia-live .safety-demo {
+  padding: 20px;
+  border-radius: 24px;
+}
+.lia-care-note {
+  margin-top: 18px;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.lia-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+@media (max-width: 380px) {
+  .lia-welcome,
+  .lia-message.assistant {
+    grid-template-columns: 28px minmax(0, 1fr);
+    gap: 8px;
+  }
+  .lia-avatar {
+    width: 28px;
+    height: 28px;
+  }
+  .lia-bubble {
+    padding: 16px;
+  }
+  .lia-message.user {
+    margin-left: 28px;
+  }
+  .lia-consent,
+  .lia-call-panel {
+    padding: 18px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lia-live *,
+  .lia-live *::before,
+  .lia-live *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+/* Action confirmation is shared by text, full voice and the compact call. */
+.lia-action-confirmation {
+  width: 100%;
+  max-width: 540px;
+  box-sizing: border-box;
+  padding: 16px;
+  margin: 14px auto;
+  border: 1px solid #bddadf;
+  border-radius: 20px;
+  background: #eaf5f5;
+  color: #103b4b;
+  flex-shrink: 0;
+}
+.lia-action-confirmation strong {
+  display: block;
+  font-size: calc(18px * var(--text-scale, 1));
+  line-height: 1.4;
+}
+.lia-action-confirmation p {
+  margin: 8px 0;
+  font-size: calc(16px * var(--text-scale, 1));
+  line-height: 1.5;
+  color: #103b4b;
+  overflow-wrap: anywhere;
+}
+.lia-action-confirmation .lia-confirm-hint {
+  font-size: calc(14px * var(--text-scale, 1));
+  color: #526b76;
+}
+.lia-confirm-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+}
+.lia-confirm-buttons button {
+  flex: 1 1 140px;
+  min-height: 52px;
+  min-width: 48px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid #b3cfd4;
+  border-radius: 16px;
+  font: inherit;
+  font-size: calc(16px * var(--text-scale, 1));
+  line-height: 1.4;
+  cursor: pointer;
+}
+.lia-confirm-buttons .lia-confirm-yes {
+  color: white;
+  background: #06576a;
+}
+.lia-confirm-buttons .lia-confirm-no {
+  color: #103b4b;
+  background: white;
+}
+.lia-confirm-buttons button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.lia-confirm-buttons button:focus-visible {
+  outline: 3px solid #087b80;
+  outline-offset: 3px;
+}
+.lia-call-dock {
+  position: fixed;
+  z-index: 70;
+  bottom: calc(86px + var(--safe-bottom, env(safe-area-inset-bottom, 0px)));
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(520px, calc(100% - 24px));
+  max-height: calc(
+    100dvh - 130px - var(--safe-top, env(safe-area-inset-top, 0px)) -
+      var(--safe-bottom, env(safe-area-inset-bottom, 0px))
+  );
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #bfd8df;
+  border-radius: 24px;
+  padding: 12px;
+  background: #f6f9fa;
+  color: #103b4b;
+  box-shadow: 0 8px 38px #103b4b30;
+  font-family: Manrope, Arial, sans-serif;
+  box-sizing: border-box;
+}
+.lia-dock-content {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.lia-dock-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.lia-dock-heading img {
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
+}
+.lia-dock-heading strong {
+  font-size: calc(16px * var(--text-scale, 1));
+  line-height: 1.4;
+}
+.lia-dock-heading p {
+  margin: 2px 0 8px;
+  font-size: calc(14px * var(--text-scale, 1));
+  color: #526b76;
+  line-height: 1.4;
+}
+.lia-dock-controls {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  flex-shrink: 0;
+  margin-top: 8px;
+}
+.lia-dock-controls button {
+  min-width: 48px;
+  min-height: 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border: 1px solid #c8dfe4;
+  border-radius: 16px;
+  background: #e5f0f3;
+  color: #06576a;
+  padding: 8px 4px;
+  font-size: calc(14px * var(--text-scale, 1));
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+.lia-dock-controls button:focus-visible,
+.lia-dock-retry:focus-visible {
+  outline: 3px solid #087b80;
+  outline-offset: 2px;
+}
+.lia-dock-controls button:disabled {
+  opacity: 0.5;
+}
+.lia-dock-controls button[aria-pressed="true"] {
+  background: #f8e9e4;
+  color: #963e31;
+}
+.lia-dock-error {
+  margin: 10px 0;
+  font-size: calc(16px * var(--text-scale, 1));
+  color: #963e31;
+  line-height: 1.5;
+}
+.lia-dock-retry {
+  min-height: 48px;
+  border: 0;
+  border-radius: 16px;
+  padding: 10px 18px;
+  background: #06576a;
+  color: white;
+  font-size: calc(16px * var(--text-scale, 1));
+}
+.lia-call-dock-open .oncoflow-app .content {
+  padding-bottom: calc(
+    var(--lia-dock-height, 160px) + var(--lia-dock-bottom, 90px) + 24px
+  );
+}
