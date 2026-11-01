@@ -1,6 +1,7 @@
 # Publicar o OncoFlow na Vercel
 
 O repositório contém o painel Pro em `/`, a prévia web do paciente em `/app/` e a API Node em `/api/`.
+Ele usa [Vercel Services](https://vercel.com/docs/services), atualmente em Beta, com dois serviços construídos separadamente no mesmo domínio.
 O código canônico do aplicativo, incluindo Android e voz, está em `patient-app/`. Este guia prepara a
 publicação pelo proprietário; nenhuma conta, banco ou implantação é criada pelos scripts do projeto.
 
@@ -13,21 +14,49 @@ Confira estes campos antes de publicar:
 | Campo | Valor |
 |---|---|
 | Root Directory | `./` — raiz do repositório |
-| Framework Preset | **Other** (`framework: null`) |
+| Configuração de serviços | Usar `services` do `vercel.json`; a interface deve listar `app` e `patient-app` |
 | Node.js | **24.x** |
-| Install Command | `npm ci --no-audit --no-fund` |
-| Build Command | `npm run build:vercel` |
-| Output Directory | `dist-static` |
+| Overrides globais de build/install/output | Não definir: pertencem a cada serviço |
 
-Esses valores estão versionados em `vercel.json` e `package.json`. A Vercel permite definir o runtime
-Node pelo campo `engines.node` e selecionar Other com `framework: null`.
-([Configuração da Vercel](https://vercel.com/docs/project-configuration/vercel-json),
+Esses valores estão versionados em `vercel.json` e `package.json`. O runtime Node vem de `engines.node`.
+No modo Services, as opções de framework, instalação, build e funções ficam dentro do serviço.
+([Referência de Services](https://vercel.com/docs/services/config-reference),
 [versões Node](https://vercel.com/docs/functions/runtimes/node-js/node-js-versions)).
 
-O build compila os dois frontends e o servidor local em `dist/`, depois copia somente arquivos de frontend
-permitidos para `dist-static/`. `dist/server.cjs`, mapas e fontes do backend ficam fora do diretório público.
-A API é executada pela única função `api/index.ts`, sem `listen()`. As reescritas preservam o caminho completo
-`/api/...`; `/app` redireciona para `/app/`, mantendo as referências relativas dos assets.
+| Serviço | Raiz | Build / saída | Acesso público |
+|---|---|---|---|
+| `app` | `.` | `npm run build:vercel` → `dist-static` | `/api`, `/api/*` e as páginas do Pro em `/` |
+| `patient-app` | `patient-app` | `npm run build:vercel` → `dist-service` | `/app/*`; `/app` redireciona para `/app/` |
+
+O build `app` compila o Pro e o servidor local em `dist/`, depois copia somente os arquivos públicos do Pro
+para `dist-static/`. `dist/server.cjs`, mapas e fontes do backend ficam fora desse diretório. A função
+`api/index.ts` pertence ao serviço `app` e executa a API sem `listen()`. As reescritas locais do serviço
+encaminham o caminho completo `/api/...` à função. O build do paciente guarda HTML, assets e VAD sob
+`dist-service/app/`, coincidindo com o prefixo público; o build Android continua relativo e separado.
+
+As rotas públicas usam `/app/(.*)` para incluir a barra final de `/app/`. Os fallbacks de páginas não
+reescrevem arquivos com extensão nem os módulos `@` do Vite. Isso evita devolver HTML onde o navegador
+espera JavaScript, imagens ou o modelo VAD. O adaptador de caminho da API é compartilhado entre função e
+servidor local para que a reescrita não caia no fallback da SPA.
+
+`backend/` (FastAPI) e `frontend/` pertencem à arquitetura futura. Não atendem ao contrato Node usado pelo APK
+atual, portanto não são serviços desta demonstração. Mantê-los fora evita encaminhar `/api` ao backend errado.
+
+### Chamadas e bindings
+
+| Origem da chamada | Destino | Forma |
+|---|---|---|
+| Navegador do Pro | API do serviço `app` | URL pública relativa `/api/...` |
+| Navegador de `patient-app` | API do serviço `app` | Mesmo domínio, `/api/...` |
+| APK | API do serviço `app` | Domínio público validado pela descoberta |
+
+Não existe código de função em um serviço chamando uma função de outro serviço; nenhum binding foi
+adicionado. Os clientes Vite executam no navegador e não podem consumir bindings de runtime do servidor.
+Redis, OpenAI e ElevenLabs são fornecedores externos, não serviços definidos neste projeto.
+Se um futuro serviço Node/Python passar a chamar outro, o binding deve ser declarado no chamador com
+`type`, `service`, `format` e `env`, e lido somente no runtime. Não coloque esse endereço em variáveis `VITE_*`
+nem configure manualmente uma variável que a Vercel deve injetar.
+([Regras oficiais de bindings](https://vercel.com/docs/services/bindings)).
 
 ## 2. Conectar Redis persistente
 
@@ -120,13 +149,24 @@ npm run test:vercel
 npm run test:serverless
 npm run test:integration
 npm run build:vercel
-npm run test:platform:smoke
+npm --prefix patient-app run build:vercel
+npx vercel@65.9.0 dev --local
 ```
 
-`test:vercel` verifica a lista de arquivos públicos e a configuração de caminhos. `test:serverless` usa
-Redis REST emulado para testar prontidão, transações e persistência entre instâncias. O smoke inicia um
-servidor local em porta efêmera e estado isolado; não altera a demonstração em outra porta. Esses testes
+`test:vercel` verifica os arquivos públicos, a independência dos builds e os caminhos por serviço. `test:serverless` usa
+Redis REST emulado para testar prontidão, transações e persistência entre instâncias. `vercel dev --local`
+(equivalente a `vercel dev -L`) inicia os dois serviços sem autenticar nem vincular um projeto. A porta fornecida
+pela Vercel é respeitada pelo script `patient-app/scripts/dev-vercel.mjs`; Vite não lê `PORT` sozinho.
+Na execução local, o comando do serviço `app` usa o servidor de desenvolvimento com persistência em arquivo.
+O endereço público da descoberta preserva o gateway local informado por `x-forwarded-host`, aceito somente
+de um peer loopback e quando é um endereço local validado. A função de produção não usa esse tratamento.
+Em produção, a API usa a função e exige Redis. Esses testes
 não comprovam uma integração real com Redis/Vercel sem as credenciais e a implantação que você configurar.
+
+Com o servidor Services em execução e `ONCOFLOW_DEMO_STATE_PATH` configurado para um arquivo de teste
+isolado, use `npm run test:services:smoke -- http://127.0.0.1:3000` em outro terminal. Se usou outra porta em
+`vercel dev --local --listen`, informe a mesma ao teste. Ele só aceita loopback e verifica o roteador Vercel,
+assets, entrada pelo navegador, relato fictício no Pro e resposta da equipe no paciente; não chama APIs de voz.
 
 O servidor local continua disponível com `npm run build:platform` e `npm run start:platform`; a persistência
 local usa arquivo, conforme o [guia local](connected-demo.md). O build Vercel não compila Android e não

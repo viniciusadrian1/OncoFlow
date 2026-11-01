@@ -8,7 +8,7 @@ import { assertInside } from './process.mjs';
 const PROJECT_ROOT = fileURLToPath(new URL('../', import.meta.url));
 const TOP_FILES = new Set(['package.json', 'package-lock.json', 'tsconfig.json', 'vite.config.ts',
   'vitest.config.ts', 'playwright.config.ts', 'capacitor.config.ts', 'index.html', 'README.md', '.gitignore', '.env.example']);
-const EXTRA_FILES = new Set(['scripts/copy-vad-assets.mjs', 'scripts/build-android.ps1',
+const EXTRA_FILES = new Set(['scripts/copy-vad-assets.mjs', 'scripts/build-android.ps1', 'scripts/dev-vercel.mjs',
   'docs/android-build.md', 'docs/hospital-integration.md', 'docs/lia-provider-selection.md', 'docs/verification-v010.md', 'docs/verification-v011.md', 'docs/verification-v0111.md',
   'public/vad/LICENSE-ONNXRUNTIME.txt', 'public/vad/LICENSE-SILERO.txt', 'public/vad/LICENSE-VAD-WEB.txt',
   'android/build.gradle', 'android/settings.gradle', 'android/capacitor.settings.gradle',

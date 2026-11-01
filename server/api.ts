@@ -1,11 +1,15 @@
 import express from 'express';
 import { criarRotas } from './rotas';
 import { criarIntegracaoMobile, type MobileOptions } from './mobile';
+import { unwrapApiPath } from './apiPath';
 
 /** Actual Express API, also mounted unchanged by HTTP integration tests. */
 export function criarApi(options: MobileOptions = {}) {
   const app = express();
   app.disable('x-powered-by');
+  app.use((req, _res, next) => {
+    try { req.url = unwrapApiPath(req.url); next(); } catch (error) { next(error); }
+  });
   const allowed = new Set(['https://localhost', 'http://localhost', 'capacitor://localhost', ...(process.env.ONCOFLOW_ALLOWED_ORIGINS ?? '').split(',').map(x => x.trim()).filter(Boolean)]);
   app.use((req, res, next) => {
     const origin = req.header('origin');

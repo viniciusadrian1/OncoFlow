@@ -1,6 +1,7 @@
 /** Connected fictional demo. This adapter shares the existing Pro state; it is not clinical infrastructure. */
 import express, { type Request, type Response, type NextFunction } from 'express';
 import { createHash, randomBytes } from 'node:crypto';
+import { isIP } from 'node:net';
 import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import type { Mensagem, OpcaoCheckin, Paciente, Pendencia } from '../src/types';
@@ -243,10 +244,18 @@ export function criarIntegracaoMobile(options: MobileOptions = {}) {
       if (parsed.protocol !== 'https:' || parsed.username || parsed.password || parsed.pathname !== '/' || parsed.search || parsed.hash) throw new ErroDominio(503, 'origem_invalida', 'Endereço canônico da demonstração não configurado corretamente.');
       return parsed.origin;
     }
-    const host = req.header('host') ?? '';
+    let host = req.header('host') ?? '';
+    const localHostname = (hostname: string) => hostname === 'localhost' || (isIP(hostname) === 4 && (hostname === '127.0.0.1' || /^10\./.test(hostname) || /^192\.168\./.test(hostname) || /^172\.(?:1[6-9]|2\d|3[01])\./.test(hostname)));
+    // vercel dev proxies to a per-service port and replaces Host. Only trust a single
+    // private forwarded host from a loopback peer in the local file-backed demo.
+    const forwarded = req.header('x-forwarded-host');
+    const peer = req.socket.remoteAddress ?? '';
+    if (!options.cloud && ['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(peer) && forwarded && /^[A-Za-z0-9.-]+(?::\d{1,5})?$/.test(forwarded) && localHostname(forwarded.split(':')[0])) {
+      try { if (new URL(`http://${forwarded}`).host) host = forwarded; } catch { /* Keep the direct host if the forwarded port is invalid. */ }
+    }
     if (!/^[A-Za-z0-9.-]+(?::\d{1,5})?$/.test(host)) return invalid('Origem inválida.');
     const hostname = host.split(':')[0];
-    const local = hostname === 'localhost' || hostname === '127.0.0.1' || /^10\./.test(hostname) || /^192\.168\./.test(hostname) || /^172\.(?:1[6-9]|2\d|3[01])\./.test(hostname);
+    const local = localHostname(hostname);
     if (local && !options.cloud) return `${req.protocol === 'https' ? 'https' : 'http'}://${host}`;
     const approved = hostname.endsWith('.vercel.app') || (process.env.ONCOFLOW_ALLOWED_ORIGINS ?? '').split(',').includes(`https://${host}`);
     if (!approved) throw new ErroDominio(503, 'origem_nao_configurada', 'Configure o endereço HTTPS canônico da demonstração.');

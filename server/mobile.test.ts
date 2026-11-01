@@ -11,6 +11,31 @@ const timestamp = () => new Date().toISOString();
 const confirmation = () => ({ confirmed: true, confirmedAt: timestamp() });
 const scopePath = (patientId = 'pac-maria') => `/api/v1/tenants/demo/hospitals/oncoflow/patients/${patientId}`;
 
+test('service-local API rewrites reach JSON routes instead of the Vite HTML fallback', async () => {
+  const api = criarApi({ statePath: null, autoConnect: true });
+  api.app.use((_req, res) => res.type('html').send('<html>SPA fallback</html>'));
+  const server = await new Promise<Server>(resolve => { const instance = api.app.listen(0, '127.0.0.1', () => resolve(instance)); });
+  const address = server.address(); assert.ok(address && typeof address !== 'string');
+  const base = `http://127.0.0.1:${address.port}`;
+  try {
+    const health = await fetch(`${base}/api/index?__oncoflow_path=/api/health`);
+    assert.match(health.headers.get('content-type') ?? '', /application\/json/);
+    assert.equal((await health.json()).service, 'OncoFlow');
+    const session = await fetch(`${base}/api/index?__oncoflow_path=/api/mobile/demo-session`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ patientId: 'pac-maria' }) });
+    assert.equal(session.status, 200); assert.equal((await session.json()).scope.patientId, 'pac-maria');
+    const config = await fetch(`${base}/api/mobile/config`, { headers: { 'x-forwarded-host': '127.0.0.1:42861' } });
+    assert.equal((await config.json()).serviceUrl, 'http://127.0.0.1:42861', 'local service config preserves the public dev gateway');
+    for (const forwarded of ['untrusted.example', '10.untrusted.example', '192.168.untrusted.example', '172.16.untrusted.example', '127.0.0.1:42861, untrusted.example', '127.0.0.1:42861/path']) {
+      const response = await fetch(`${base}/api/mobile/config`, { headers: { 'x-forwarded-host': forwarded } });
+      assert.equal((await response.json()).serviceUrl, base, 'untrusted or malformed forwarded hosts are ignored');
+    }
+    for (const query of ['__oncoflow_path=/app/index.html', '__oncoflow_path=/api/health&__oncoflow_path=/api/pro/estado']) {
+      const invalid = await fetch(`${base}/api/index?${query}`);
+      assert.equal(invalid.status, 400); assert.match(invalid.headers.get('content-type') ?? '', /application\/json/);
+    }
+  } finally { api.dispose(); await new Promise<void>(resolve => server.close(() => resolve())); }
+});
+
 test('connected fictional demo uses real shared Pro state over HTTP, persists, and isolates patients', async t => {
   const testsRoot = path.resolve('outputs/.oncoflow-demo/tests');
   mkdirSync(testsRoot, { recursive: true });

@@ -1,22 +1,43 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": null,
-  "installCommand": "npm ci --no-audit --no-fund",
-  "buildCommand": "npm run build:vercel",
-  "outputDirectory": "dist-static",
-  "functions": {
-    "api/index.ts": {
-      "maxDuration": 60,
-      "excludeFiles": "{patient-app/**,dist/**,dist-static/**,public/**,backend/**,frontend/**,oncoflow-casa/**,work/**,outputs/**,test-results/**,tests/**,platform/**,**/*.test.ts,**/*.map}"
+  "services": {
+    "app": {
+      "root": ".",
+      "framework": "vite",
+      "installCommand": "npm ci --no-audit --no-fund",
+      "buildCommand": "npm run build:vercel",
+      "devCommand": "npm run dev",
+      "outputDirectory": "dist-static",
+      "functions": {
+        "api/index.ts": {
+          "maxDuration": 60,
+          "excludeFiles": "{patient-app/**,dist/**,dist-static/**,public/**,backend/**,frontend/**,oncoflow-casa/**,work/**,outputs/**,output/**,test-results/**,tests/**,platform/**,**/*.test.ts,**/*.map}"
+        }
+      },
+      "rewrites": [
+        { "source": "/api", "destination": "/api/index?__oncoflow_path=/api" },
+        { "source": "/api/:path*", "destination": "/api/index?__oncoflow_path=/api/:path*" },
+        { "source": "/((?!api(?:/|$)|@)(?!.*\\.[^/]+$).*)", "destination": "/index.html" }
+      ]
+    },
+    "patient-app": {
+      "root": "patient-app",
+      "framework": "vite",
+      "installCommand": "npm ci --no-audit --no-fund",
+      "buildCommand": "npm run build:vercel",
+      "devCommand": "npm run dev:vercel",
+      "outputDirectory": "dist-service",
+      "rewrites": [
+        { "source": "/app/((?!@)(?!.*\\.[^/]+$).*)", "destination": "/app/index.html" }
+      ]
     }
   },
   "env": { "ONCOFLOW_DEMO_AUTO_CONNECT": "true" },
   "redirects": [ { "source": "/app", "destination": "/app/", "permanent": true } ],
   "rewrites": [
-    { "source": "/api", "destination": "/api/index?__oncoflow_path=/api" },
-    { "source": "/api/:path*", "destination": "/api/index?__oncoflow_path=/api/:path*" },
-    { "source": "/app/:path*", "destination": "/app/index.html" },
-    { "source": "/:path*", "destination": "/index.html" }
+    { "source": "/api/(.*)", "destination": { "service": "app" } },
+    { "source": "/app/(.*)", "destination": { "service": "patient-app" } },
+    { "source": "/(.*)", "destination": { "service": "app" } }
   ],
   "headers": [ { "source": "/api/:path*", "headers": [ { "key": "Cache-Control", "value": "no-store" } ] } ]
 }

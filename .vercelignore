@@ -10,6 +10,7 @@ dist
 dist-static
 public/app
 patient-app/dist
+patient-app/dist-service
 patient-app/public/vad/*
 !patient-app/public/vad/LICENSE-*.txt
 patient-app/android

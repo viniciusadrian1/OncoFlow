@@ -6,6 +6,7 @@ import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { Request, Response } from 'express';
 import { randomBytes } from 'node:crypto';
 import { criarApi } from './api';
+import { unwrapApiPath } from './apiPath';
 import type { CloudSnapshot } from './mobile';
 
 export const COMMIT_SCRIPT = `
@@ -87,12 +88,7 @@ async function processLock(waitMs: number): Promise<() => void> {
 
 /** The explicit Vercel rewrite keeps the complete existing API path. */
 function normalizePath(req: IncomingMessage) {
-  const url = new URL(req.url ?? '/', 'http://internal.invalid');
-  if (url.pathname !== '/api/index') return;
-  const paths = url.searchParams.getAll('__oncoflow_path');
-  if (paths.length !== 1 || !/^\/api(?:\/[A-Za-z0-9/_-]+)?$/.test(paths[0]) || paths[0].includes('//')) throw new InputError(400);
-  url.searchParams.delete('__oncoflow_path');
-  const query = url.searchParams.toString(); req.url = paths[0] + (query ? `?${query}` : '');
+  try { req.url = unwrapApiPath(req.url); } catch { throw new InputError(400); }
 }
 
 class InputError extends Error { constructor(public status: number) { super('Invalid API request.'); } }

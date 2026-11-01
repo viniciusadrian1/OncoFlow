@@ -24,7 +24,7 @@ No Windows, `powershell -ExecutionPolicy Bypass -File .\Start-OncoFlow.ps1 -Buil
 
 ## Preparar sua publicação Vercel
 
-Importe este repositório, branch `main`, com raiz `./`, preset **Other**, Node **24.x**, build `npm run build:vercel` e saída `dist-static`. Conecte um **Upstash Redis** pelo Marketplace, escolhendo o plano e a região. A API na nuvem exige persistência Redis e retorna 503 enquanto ela não estiver pronta.
+Importe este repositório, branch `main`, com raiz `./` e a configuração **Services** de `vercel.json`. O serviço `app` publica o Pro e a API Node; `patient-app` publica a prévia do paciente em `/app/`. Os comandos e saídas de cada serviço estão no arquivo, sem overrides de build no topo. Use Node **24.x** e conecte **Upstash Redis** pelo Marketplace, escolhendo o plano e a região. A API na nuvem exige persistência Redis e retorna 503 enquanto ela não estiver pronta.
 
 O [guia Vercel](docs/vercel.md) mostra variáveis, acesso público ao APK, descoberta do domínio e verificação. Os arquivos estão preparados para você publicar; os scripts não criam conta, banco ou implantação.
 
@@ -38,7 +38,9 @@ O [guia Vercel](docs/vercel.md) mostra variáveis, acesso público ao APK, desco
 | `api/index.ts` | Função Node para a Vercel |
 | `platform/` | Build, inicialização e verificações locais |
 
-Edite o aplicativo diretamente em `patient-app/`. Não sincronize automaticamente de uma pasta irmã antiga. `build:vercel` publica somente os frontends em `dist-static`; o bundle e os mapas do servidor não entram na saída pública. Nenhuma credencial Redis ou de voz deve entrar no Git ou no frontend.
+Edite o aplicativo diretamente em `patient-app/`. Não sincronize automaticamente de uma pasta irmã antiga. Na raiz, `build:vercel` prepara somente os arquivos públicos do Pro em `dist-static`; no paciente, o comando de mesmo nome gera `dist-service/app`. O bundle e os mapas do servidor não entram na saída pública. Nenhuma credencial Redis ou de voz deve entrar no Git ou no frontend.
+
+Os dois clientes chamam `/api` no mesmo domínio. Não há chamada entre funções de serviços distintos que precise de binding. `backend/` e `frontend/` são uma arquitetura futura e não participam da publicação atual. Vercel Services está em Beta; confira o [guia e as decisões de roteamento](docs/vercel.md).
 
 ```sh
 npm run lint
@@ -49,8 +51,13 @@ npm run test:vercel
 npm run test:serverless
 npm --prefix patient-app test
 npm run build:vercel
-npm run test:platform:smoke
+npm --prefix patient-app run build:vercel
 ```
+
+Para testar os dois serviços juntos, execute `npx vercel@65.9.0 dev --local` e, em outro terminal,
+`npm run test:services:smoke -- http://127.0.0.1:3000`, com `ONCOFLOW_DEMO_STATE_PATH` apontando para um arquivo
+de teste isolado. O teste inclui entrada pelo navegador e troca de registros fictícios. O smoke do servidor
+local anterior continua disponível após `npm run build:platform`, com `npm run test:platform:smoke`.
 
 O [guia do app](patient-app/README.md) descreve entrada automática, Android e voz. As regras do produto estão em [CLAUDE.md](CLAUDE.md). Perfis e pacientes são fictícios; esta implementação ainda não é autenticação institucional nem prontuário de produção.
 

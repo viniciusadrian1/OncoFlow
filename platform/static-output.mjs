@@ -14,7 +14,7 @@ export function isPublicFrontendPath(relative) {
   return ['app', 'assets', 'brand'].includes(parts[0]) && parts.length > 1 && EXTENSION.test(relative);
 }
 
-export async function createStaticOutput(projectRoot) {
+export async function createStaticOutput(projectRoot, { includePatient = true } = {}) {
   const root = await realpath(projectRoot);
   const input = path.join(root, 'dist'); const output = path.join(root, 'dist-static');
   assertInside(root, input); assertInside(root, output);
@@ -30,6 +30,7 @@ export async function createStaticOutput(projectRoot) {
       const filename = path.join(directory, entry.name);
       if (entry.isSymbolicLink()) throw new Error('Build contém link simbólico inesperado.');
       if (entry.isDirectory()) {
+        if (!prefix && entry.name === 'app' && !includePatient) continue;
         if (!prefix && !['app', 'assets', 'brand'].includes(entry.name)) continue;
         if (entry.name.startsWith('.')) continue;
         await collect(filename, relative);
@@ -37,7 +38,7 @@ export async function createStaticOutput(projectRoot) {
     }
   }
   await collect(input);
-  if (!selected.includes('index.html') || !selected.includes('app/index.html')) throw new Error('Build incompleto: faltam Pro ou aplicativo do paciente.');
+  if (!selected.includes('index.html') || (includePatient && !selected.includes('app/index.html'))) throw new Error('Build incompleto: faltam os frontends selecionados.');
   await rm(output, { recursive: true, force: true });
   await mkdir(output, { recursive: true });
   for (const relative of selected) {

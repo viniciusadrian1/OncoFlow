@@ -1,5 +1,7 @@
 # Verificação da preparação Vercel — 31/10/2026
 
+Este relatório registra a preparação inicial, anterior à separação por Services. A configuração atual de serviços e builds está em [vercel.md](vercel.md).
+
 Repositório de destino: `viniciusadrian1/OncoFlow`, branch `main`. App do paciente: 0.12.0, versionCode 14.
 
 ## Resultado verificado
