@@ -1,0 +1,22 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "installCommand": "npm ci --no-audit --no-fund",
+  "buildCommand": "npm run build:vercel",
+  "outputDirectory": "dist-static",
+  "functions": {
+    "api/index.ts": {
+      "maxDuration": 60,
+      "excludeFiles": "{patient-app/**,dist/**,dist-static/**,public/**,backend/**,frontend/**,oncoflow-casa/**,work/**,outputs/**,test-results/**,tests/**,platform/**,**/*.test.ts,**/*.map}"
+    }
+  },
+  "env": { "ONCOFLOW_DEMO_AUTO_CONNECT": "true" },
+  "redirects": [ { "source": "/app", "destination": "/app/", "permanent": true } ],
+  "rewrites": [
+    { "source": "/api", "destination": "/api/index?__oncoflow_path=/api" },
+    { "source": "/api/:path*", "destination": "/api/index?__oncoflow_path=/api/:path*" },
+    { "source": "/app/:path*", "destination": "/app/index.html" },
+    { "source": "/:path*", "destination": "/index.html" }
+  ],
+  "headers": [ { "source": "/api/:path*", "headers": [ { "key": "Cache-Control", "value": "no-store" } ] } ]
+}

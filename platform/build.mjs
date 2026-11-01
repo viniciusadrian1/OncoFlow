@@ -6,10 +6,8 @@ import { assertInside, runNpm } from './process.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const bundled = path.join(root, 'patient-app');
-const sibling = path.resolve(root, '../oncoflow-patient');
-const patient = existsSync(path.join(bundled, 'package.json')) ? bundled : sibling;
-if (!existsSync(path.join(patient, 'package-lock.json'))) throw new Error('Código do paciente ausente. Inclua patient-app ou execute npm run sync:patient.');
-if (patient === sibling) console.log('Desenvolvimento: usando o app da pasta irmã; a distribuição usa patient-app.');
+const patient = bundled;
+if (!existsSync(path.join(patient, 'package-lock.json'))) throw new Error('Código canônico do paciente ausente: restaure patient-app a partir deste repositório.');
 
 if (!existsSync(path.join(root, 'node_modules/vite/package.json'))) await runNpm(['ci', '--no-audit', '--no-fund'], root);
 if (!existsSync(path.join(patient, 'node_modules/vite/package.json'))) await runNpm(['ci', '--no-audit', '--no-fund'], patient);

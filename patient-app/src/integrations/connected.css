@@ -2,6 +2,25 @@
   margin: 18px 0;
   width: 100%;
 }
+.hospital-advanced > summary {
+  cursor: pointer;
+  color: #174951;
+  padding: 12px 0;
+  font-weight: 600;
+}
+.welcome > .primary,
+.welcome > .secondary {
+  margin-top: 12px;
+}
+.hospital-connection-actions select {
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid #b9d6d9;
+  padding: 12px;
+  font: inherit;
+  color: inherit;
+  background: white;
+}
 .hospital-pair-form,
 .hospital-message-form {
   display: grid;

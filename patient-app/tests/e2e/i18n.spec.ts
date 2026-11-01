@@ -8,7 +8,7 @@ test("English selection persists and localizes patient data, dates, documents an
   await expect(page.locator("html")).toHaveAttribute("lang", "en-US");
   await expect(
     page.getByText(
-      "Demo with fictional data — no alerts are sent to professionals.",
+      "Fictional data. When you enter the app, check-ins and configured signs are shared with the connected panel. In offline mode, everything stays on this device.",
     ),
   ).toBeVisible();
   await page.getByRole("button", { name: "Explore demo" }).click();

@@ -143,6 +143,30 @@ export async function pairHospital(options: {
     throw new HospitalIntegrationError(
       response.status === 401 || response.status === 410 ? "auth" : "server",
     );
+  return authenticatedHospitalSession(response, { ...options, origin });
+}
+
+/** Shared strict receipt reader for private pairing and explicitly enabled fictional demo entry. */
+export async function authenticatedHospitalSession(
+  response: Response,
+  options: {
+    origin: string;
+    signal?: AbortSignal;
+    allowLoopbackHttp?: boolean;
+    allowLocalDemoHttp?: boolean;
+    fetch?: typeof fetch;
+    expectedScope?: HospitalPatientScope;
+  },
+): Promise<HospitalConnection> {
+  if (!response.ok)
+    throw new HospitalIntegrationError(
+      response.status === 401 || response.status === 403 ? "auth" : "server",
+    );
+  const origin = hospitalOrigin(
+    options.origin,
+    options.allowLocalDemoHttp || options.allowLoopbackHttp,
+  );
+  const fetcher = options.fetch ?? hospitalFetch;
   let body: Record<string, unknown>;
   try {
     if (
@@ -189,6 +213,13 @@ export async function pairHospital(options: {
   }
   if (options.signal?.aborted) throw new HospitalIntegrationError("aborted");
   const scope = Object.freeze(parseScope(body.scope));
+  if (
+    options.expectedScope &&
+    (scope.tenantId !== options.expectedScope.tenantId ||
+      scope.hospitalId !== options.expectedScope.hospitalId ||
+      scope.patientId !== options.expectedScope.patientId)
+  )
+    throw new HospitalIntegrationError("scope");
   let token: string | null = body.accessToken as string;
   const expiresAt = body.expiresAt as string;
   let active = true;

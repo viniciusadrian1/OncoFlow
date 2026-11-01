@@ -9,7 +9,7 @@ test("enters a fictional profile and navigates all five tabs", async ({
   ).toBeVisible();
   await expect(
     page.getByText(
-      "Demonstração com dados fictícios — nenhum alerta é enviado a profissionais.",
+      "Dados fictícios. Ao entrar no app, registros e sinais configurados são compartilhados com o painel conectado. No modo offline, tudo fica neste aparelho.",
     ),
   ).toBeVisible();
   await page.getByRole("button", { name: "Explorar demonstração" }).click();
@@ -61,7 +61,9 @@ test("Lia explains live voice availability in the browser preview", async ({
     .getByRole("button", { name: "Lia", exact: true })
     .click();
   await expect(
-    page.getByText("A IA ao vivo está disponível no APK Android.", { exact: false }),
+    page.getByText("A IA ao vivo está disponível no APK Android.", {
+      exact: false,
+    }),
   ).toBeVisible();
   await page.getByRole("button", { name: "Minha próxima consulta" }).click();
   await expect(page.getByTestId("lia-answer")).toContainText("consulta");

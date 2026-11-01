@@ -71,6 +71,7 @@ import {
   requestStatusLabel,
 } from "../integrations/connectedText";
 import { hospitalOrigin } from "../integrations/hospital/connection";
+import type { HospitalConnection } from "../integrations/hospital/connection";
 
 type Page =
   | "home"
@@ -569,9 +570,8 @@ export function App() {
       }
     : null;
 
-  async function pair(origin: string, code: string, localDemo: boolean) {
-    const paired = await connected.connect(origin, code, localDemo);
-    if (!paired) return;
+  function activateHospital(paired: HospitalConnection) {
+    currentHospital.current = paired;
     operationKeys.current.clear();
     setContext(createConnectedSession(paired.scope.patientId));
     setMood("");
@@ -580,6 +580,13 @@ export function App() {
     setModal(null);
     setLiaStartRequest(0);
     setLiaAssisted(false);
+    setEntered(true);
+    navigate("home");
+  }
+  async function pair(origin: string, code: string, localDemo: boolean) {
+    const paired = await connected.connect(origin, code, localDemo);
+    if (!paired) return;
+    activateHospital(paired);
     try {
       localStorage.setItem(
         "oncoflow-hospital-origin",
@@ -588,8 +595,20 @@ export function App() {
     } catch {
       /* Address persistence is optional. Credentials are never stored. */
     }
-    setEntered(true);
-    navigate("home");
+  }
+  async function enterAutomatically(patientId?: string) {
+    currentHospital.current = null;
+    setEntered(false);
+    setModal(null);
+    setNotice("");
+    setMood("");
+    setSavedMood("");
+    setLiaAssisted(false);
+    setLiaStartRequest(0);
+    // Rotate before the request so old voice turns and patient callbacks are already invalid.
+    setContext(createSession("marina"));
+    const result = await connected.connectAutomatically(patientId);
+    if (result) activateHospital(result);
   }
   function disconnectHospital() {
     currentHospital.current = null;
@@ -832,43 +851,43 @@ export function App() {
             </p>
           </div>
           <LanguageSelector id="welcome-language" />
+          <button
+            className="primary full"
+            disabled={connected.pairing}
+            onClick={() => void enterAutomatically()}
+          >
+            {t(connected.pairing ? "Entrando…" : "Entrar no app")}
+            <ArrowRight size={20} />
+          </button>
+          {connected.autoError && (
+            <p role="alert" className="hospital-error">
+              {t(
+                "O serviço está indisponível no momento. Você pode explorar a demonstração offline e tentar novamente depois.",
+              )}
+            </p>
+          )}
+          <button className="secondary full" onClick={start}>
+            {t("Explorar demonstração ")}
+            <ArrowRight size={20} />
+          </button>
+          <p className="welcome-foot">
+            {t(
+              "Modo offline com perfis fictícios. Você pode trocar de perfil em Meu perfil.",
+            )}
+          </p>
           <PairHospitalPanel
             pairing={connected.pairing}
             error={connected.pairError}
             onConnect={pair}
           />
-          <div className="persona-selector">
-            <p className="field-label">
-              {t("Escolha um perfil fictício para explorar ")}
-            </p>
-            <div className="persona-options">
-              {localizedPersonas.map((p) => (
-                <button
-                  key={p.id}
-                  className={`persona-option ${p.id === context.personaId ? "selected" : ""}`}
-                  aria-pressed={p.id === context.personaId}
-                  onClick={() => choosePersona(p.id)}
-                >
-                  <span className={`avatar ${p.accent}`}>{p.initials}</span>
-                  <strong>{p.firstName}</strong>
-                  <small>{p.ageLabel}</small>
-                  {p.id === context.personaId && (
-                    <span className="selection-check">
-                      <Check size={12} />
-                    </span>
-                  )}
-                </button>
-              ))}
-            </div>
-          </div>
-          <button className="primary full" onClick={start}>
-            {t("Explorar demonstração ")}
-            <ArrowRight size={20} />
-          </button>
           <p className="welcome-foot">
             {t("Sem cadastro. Apenas histórias fictícias. ")}
           </p>
-          <p className="welcome-foot">{t(DEMO_NOTICE)}</p>
+          <p className="welcome-foot">
+            {t(
+              "Dados fictícios. Ao entrar no app, registros e sinais configurados são compartilhados com o painel conectado. No modo offline, tudo fica neste aparelho.",
+            )}
+          </p>
         </main>
       ) : (
         <>
@@ -1274,7 +1293,9 @@ export function App() {
                     </p>
                     <p>
                       {t(
-                        "Sessão mantida apenas enquanto o app está aberto. Ao reiniciar, use um novo código.",
+                        connected.demoPatients.length
+                          ? "A sessão fica aberta enquanto você usa o app. Ao reiniciar, toque em Entrar no app novamente."
+                          : "Sessão mantida apenas enquanto o app está aberto. Ao reiniciar, use um novo código.",
                       )}
                     </p>
                     <button
@@ -1283,6 +1304,27 @@ export function App() {
                     >
                       {t("Desconectar")}
                     </button>
+                    {connected.demoPatients.length > 1 && (
+                      <>
+                        <label htmlFor="connected-demo-patient">
+                          {t("Perfil fictício conectado")}
+                        </label>
+                        <select
+                          id="connected-demo-patient"
+                          value={hospital.scope.patientId}
+                          disabled={connected.pairing || remote.pending > 0}
+                          onChange={(event) =>
+                            void enterAutomatically(event.target.value)
+                          }
+                        >
+                          {connected.demoPatients.map((patient) => (
+                            <option key={patient.id} value={patient.id}>
+                              {patient.displayName}
+                            </option>
+                          ))}
+                        </select>
+                      </>
+                    )}
                   </section>
                 )}
                 {hospital && remote.summary?.careContext && (
@@ -1454,13 +1496,15 @@ export function App() {
                 <RowButton
                   icon={Info}
                   title={t("Sobre esta versão")}
-                  description={t("OncoFlow Paciente · 0.11.1")}
+                  description={t("OncoFlow Paciente · 0.12.0")}
                   onClick={() => setModal({ type: "help" })}
                 />
                 <p className="footnote">
                   {t(
                     hospital
-                      ? "Sessão mantida apenas enquanto o app está aberto. Ao reiniciar, use um novo código."
+                      ? connected.demoPatients.length
+                        ? "A sessão fica aberta enquanto você usa o app. Ao reiniciar, toque em Entrar no app novamente."
+                        : "Sessão mantida apenas enquanto o app está aberto. Ao reiniciar, use um novo código."
                       : "Apenas preferências de leitura e idioma são salvas neste aparelho. Ao fechar ou recarregar, os registros da demonstração são apagados. ",
                   )}
                 </p>
@@ -1978,7 +2022,7 @@ export function App() {
                     : "Não há atendimento, monitoramento clínico ou envio de mensagens a profissionais. ",
                 )}
               </p>
-              <Tag>{t("VERSÃO 0.9.0 · DEMONSTRAÇÃO")}</Tag>
+              <Tag>{t("VERSÃO 0.12.0 · DEMONSTRAÇÃO")}</Tag>
             </>
           )}
         </Sheet>

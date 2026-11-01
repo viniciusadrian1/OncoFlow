@@ -26,86 +26,91 @@ export function PairHospitalPanel({
   const [code, setCode] = useState("");
   const [localDemo, setLocalDemo] = useState(false);
   return (
-    <section className="hospital-pair-panel">
-      {!open ? (
-        <button
-          type="button"
-          className="secondary full"
-          onClick={() => setOpen(true)}
-        >
-          {t("Conectar ao hospital")}
-        </button>
-      ) : (
-        <form
-          className="card hospital-pair-form"
-          onSubmit={(event) => {
-            event.preventDefault();
-            void onConnect(origin, code, localDemo);
-          }}
-        >
-          <h2>{t("Conectar ao hospital")}</h2>
-          <p>
-            {t(
-              "Use o endereço e o código temporário exibidos no painel da equipe.",
-            )}
-          </p>
-          <label htmlFor="hospital-address">{t("Endereço do hospital")}</label>
-          <input
-            id="hospital-address"
-            type="url"
-            placeholder="https://hospital.exemplo"
-            value={origin}
-            onChange={(event) => setOrigin(event.target.value)}
-            autoCapitalize="none"
-            autoCorrect="off"
-            required
-            disabled={pairing}
-          />
-          <label htmlFor="hospital-code">{t("Código de pareamento")}</label>
-          <input
-            id="hospital-code"
-            value={code}
-            onChange={(event) => setCode(event.target.value)}
-            autoComplete="off"
-            autoCapitalize="characters"
-            required
-            maxLength={64}
-            disabled={pairing}
-          />
-          <label className="hospital-local-option">
+    <details className="hospital-pair-panel hospital-advanced">
+      <summary>{t("Conexão avançada")}</summary>
+      <section>
+        {!open ? (
+          <button
+            type="button"
+            className="secondary full"
+            onClick={() => setOpen(true)}
+          >
+            {t("Conectar ao hospital")}
+          </button>
+        ) : (
+          <form
+            className="card hospital-pair-form"
+            onSubmit={(event) => {
+              event.preventDefault();
+              void onConnect(origin, code, localDemo);
+            }}
+          >
+            <h2>{t("Conectar ao hospital")}</h2>
+            <p>
+              {t(
+                "Use o endereço e o código temporário exibidos no painel da equipe.",
+              )}
+            </p>
+            <label htmlFor="hospital-address">
+              {t("Endereço do hospital")}
+            </label>
             <input
-              type="checkbox"
-              checked={localDemo}
-              onChange={(event) => setLocalDemo(event.target.checked)}
+              id="hospital-address"
+              type="url"
+              placeholder="https://hospital.exemplo"
+              value={origin}
+              onChange={(event) => setOrigin(event.target.value)}
+              autoCapitalize="none"
+              autoCorrect="off"
+              required
               disabled={pairing}
             />
-            <span>{t("Rede local de demonstração (HTTP)")}</span>
-          </label>
-          {localDemo && (
+            <label htmlFor="hospital-code">{t("Código de pareamento")}</label>
+            <input
+              id="hospital-code"
+              value={code}
+              onChange={(event) => setCode(event.target.value)}
+              autoComplete="off"
+              autoCapitalize="characters"
+              required
+              maxLength={64}
+              disabled={pairing}
+            />
+            <label className="hospital-local-option">
+              <input
+                type="checkbox"
+                checked={localDemo}
+                onChange={(event) => setLocalDemo(event.target.checked)}
+                disabled={pairing}
+              />
+              <span>{t("Rede local de demonstração (HTTP)")}</span>
+            </label>
+            {localDemo && (
+              <p className="footnote">
+                {t(
+                  "No modo local, conecte o celular e o computador à mesma rede Wi-Fi. Use apenas dados fictícios.",
+                )}
+              </p>
+            )}
+            {error && (
+              <p role="alert" className="hospital-error">
+                {t(
+                  "Não foi possível conectar. Confira o endereço, o código e a rede e tente novamente.",
+                )}
+              </p>
+            )}
+            <button className="primary full" disabled={pairing}>
+              {t(pairing ? "Conectando…" : "Conectar ao hospital")}
+            </button>
             <p className="footnote">
               {t(
-                "No modo local, conecte o celular e o computador à mesma rede Wi-Fi. Use apenas dados fictícios.",
+                "Sessão mantida apenas enquanto o app está aberto. Ao reiniciar, use um novo código.",
               )}
             </p>
-          )}
-          {error && (
-            <p role="alert" className="hospital-error">
-              {t(
-                "Não foi possível conectar. Confira o endereço, o código e a rede e tente novamente.",
-              )}
-            </p>
-          )}
-          <button className="primary full" disabled={pairing}>
-            {t(pairing ? "Conectando…" : "Conectar ao hospital")}
-          </button>
-          <p className="footnote">
-            {t(
-              "Sessão mantida apenas enquanto o app está aberto. Ao reiniciar, use um novo código.",
-            )}
-          </p>
-        </form>
-      )}
-    </section>
+          </form>
+        )}
+      </section>
+    </details>
   );
 }
 

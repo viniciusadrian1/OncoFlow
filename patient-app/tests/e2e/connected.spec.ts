@@ -473,6 +473,7 @@ test("TTS quota failure keeps the microphone, written guidance and automatic ale
 
 async function connect(page: Page) {
   await page.goto("/");
+  await page.getByText("Conexão avançada", { exact: true }).click();
   await page
     .getByRole("button", { name: "Conectar ao hospital", exact: true })
     .click();

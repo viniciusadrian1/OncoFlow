@@ -64,14 +64,14 @@ const estado = {
   auditoria: [] as EventoAuditoria[],
 };
 
-type EstadoSalvo = Pick<typeof estado, 'versao' | 'pacientes' | 'pendencias' | 'auditoria'>;
+export type EstadoSalvo = Pick<typeof estado, 'versao' | 'pacientes' | 'pendencias' | 'auditoria'> & { propostas?: [string, PropostaInterna][] };
 const aoResetar = new Set<() => void>();
 export function observarReset(callback: () => void): () => void {
   aoResetar.add(callback);
   return () => aoResetar.delete(callback);
 }
 export function exportarEstado(): EstadoSalvo {
-  return { versao: estado.versao, pacientes: estado.pacientes, pendencias: estado.pendencias, auditoria: estado.auditoria };
+  return { versao: estado.versao, pacientes: estado.pacientes, pendencias: estado.pendencias, auditoria: estado.auditoria, propostas: [...estado.propostas] };
 }
 export function importarEstado(salvo: EstadoSalvo): void {
   if (!salvo || !Array.isArray(salvo.pacientes) || !salvo.pacientes.length || !Array.isArray(salvo.pendencias) || !Array.isArray(salvo.auditoria)) {
@@ -82,6 +82,11 @@ export function importarEstado(salvo: EstadoSalvo): void {
   estado.pendencias = salvo.pendencias;
   estado.auditoria = salvo.auditoria;
   estado.propostas.clear();
+  for (const [key, proposal] of salvo.propostas ?? []) estado.propostas.set(key, proposal);
+}
+/** A fresh fictional database, used only when the durable store has no snapshot yet. */
+export function estadoInicial(): EstadoSalvo {
+  return { ...criarSeed(), versao: 2, auditoria: [], propostas: [] };
 }
 export function marcarAlteracao(): void { mudou(); }
 

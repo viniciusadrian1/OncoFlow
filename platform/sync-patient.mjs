@@ -130,7 +130,7 @@ async function checkDestination(destination, target) {
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const args = process.argv.slice(2);
-  if (args.length > 1) throw new Error('Uso: npm run sync:patient -- [pasta-da-origem]');
-  const result = await syncPatientSource(path.resolve(args[0] || path.join(PROJECT_ROOT, '../oncoflow-patient')));
+  if (args.length !== 1) throw new Error('patient-app é a origem canônica. Importação excepcional exige fonte explícita: npm run sync:patient -- <pasta-da-origem>. Não use uma cópia antiga.');
+  const result = await syncPatientSource(path.resolve(args[0]));
   console.log(`App ${result.appVersion}: ${result.count} arquivos de código sincronizados em patient-app. Configurações locais e builds excluídos.`);
 }

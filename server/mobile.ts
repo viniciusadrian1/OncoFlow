@@ -5,7 +5,7 @@ import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from '
 import path from 'node:path';
 import type { Mensagem, OpcaoCheckin, Paciente, Pendencia } from '../src/types';
 import {
-  adicionarMensagem, auditar, criarPendencia, ErroDominio, exportarEstado, importarEstado,
+  adicionarMensagem, auditar, criarPendencia, ErroDominio, estadoInicial, exportarEstado, importarEstado,
   marcarAlteracao, observarReset, obterPaciente, registrarCheckin, registrarSinalUrgencia, todasPendencias,
   todosPacientes, usuarioPorId,
 } from './estado';
@@ -43,6 +43,9 @@ export type MobileOptions = {
   sessionTtlMs?: number;
   /** Test-only fault injection for the local atomic persistence boundary; never an HTTP option. */
   beforePersist?: () => void;
+  autoConnect?: boolean;
+  /** Passed by the stateless function entrypoint, never from an HTTP body. */
+  cloud?: boolean;
 };
 const scopeFor = (patientId: string): Scope => ({ tenantId: 'demo', hospitalId: 'oncoflow', patientId });
 const baseFor = (patientId: string, id: string): RecordBase => ({ ...scopeFor(patientId), id });
@@ -99,6 +102,22 @@ export function criarIntegracaoMobile(options: MobileOptions = {}) {
   const sessions = new Map<string, { patientId: string; expires: number }>();
   const attempts = new Map<string, { count: number; expires: number }>();
   const savedRequests = new WeakSet<Request>();
+  function exportSnapshot() {
+    prune();
+    return structuredClone({ format: 'oncoflow-fictional-cloud-1' as const, state: exportarEstado(), extras, pairings: [...pairings], sessions: [...sessions], attempts: [...attempts] });
+  }
+  type Snapshot = ReturnType<typeof exportSnapshot>;
+  function importSnapshot(saved: Snapshot | null) {
+    if (saved === null) {
+      importarEstado(estadoInicial()); extras = fresh(); pairings.clear(); sessions.clear(); attempts.clear(); return;
+    }
+    if (saved.format !== 'oncoflow-fictional-cloud-1' || !saved.extras?.idempotency || !Array.isArray(saved.pairings) || !Array.isArray(saved.sessions) || !Array.isArray(saved.attempts)) throw new Error('Invalid durable fictional demo snapshot.');
+    importarEstado(structuredClone(saved.state)); extras = structuredClone(saved.extras); extras.symptomReports ??= {};
+    for (const [map, values] of [[pairings, saved.pairings], [sessions, saved.sessions], [attempts, saved.attempts]] as const) {
+      map.clear(); for (const [key, value] of values) (map as Map<string, unknown>).set(key, structuredClone(value));
+    }
+    prune();
+  }
   if (filename && existsSync(filename)) {
     // A broken file is surfaced, never silently replaced by a new seed.
     const saved = JSON.parse(readFileSync(filename, 'utf8'));
@@ -216,6 +235,45 @@ export function criarIntegracaoMobile(options: MobileOptions = {}) {
     }
     next();
   });
+  const autoConnectEnabled = () => options.autoConnect ?? process.env.ONCOFLOW_DEMO_AUTO_CONNECT === 'true';
+  function serviceUrl(req: Request): string {
+    const canonical = process.env.VERCEL_PROJECT_PRODUCTION_URL;
+    if (canonical) {
+      const parsed = new URL(canonical.includes('://') ? canonical : `https://${canonical}`);
+      if (parsed.protocol !== 'https:' || parsed.username || parsed.password || parsed.pathname !== '/' || parsed.search || parsed.hash) throw new ErroDominio(503, 'origem_invalida', 'Endereço canônico da demonstração não configurado corretamente.');
+      return parsed.origin;
+    }
+    const host = req.header('host') ?? '';
+    if (!/^[A-Za-z0-9.-]+(?::\d{1,5})?$/.test(host)) return invalid('Origem inválida.');
+    const hostname = host.split(':')[0];
+    const local = hostname === 'localhost' || hostname === '127.0.0.1' || /^10\./.test(hostname) || /^192\.168\./.test(hostname) || /^172\.(?:1[6-9]|2\d|3[01])\./.test(hostname);
+    if (local && !options.cloud) return `${req.protocol === 'https' ? 'https' : 'http'}://${host}`;
+    const approved = hostname.endsWith('.vercel.app') || (process.env.ONCOFLOW_ALLOWED_ORIGINS ?? '').split(',').includes(`https://${host}`);
+    if (!approved) throw new ErroDominio(503, 'origem_nao_configurada', 'Configure o endereço HTTPS canônico da demonstração.');
+    return `https://${host}`;
+  }
+  r.get('/api/mobile/config', route((req, res) => {
+    res.json({ apiVersion: '1', demo: true, autoConnectEnabled: autoConnectEnabled(), serviceUrl: serviceUrl(req), defaultPatientId: 'pac-maria' });
+  }));
+  r.get('/api/mobile/demo-patients', route((_req, res) => {
+    if (!autoConnectEnabled()) throw new ErroDominio(403, 'autoconexao_desativada', 'A autoconexão da demonstração está desativada.');
+    res.json({ demo: true, patients: todosPacientes().map(p => ({ id: p.id, displayName: p.nome })), defaultPatientId: 'pac-maria' });
+  }));
+  function newSession(p: Paciente) {
+    prune();
+    if (sessions.size >= 2000) throw new ErroDominio(429, 'limite_demo', 'Limite de sessões desta demonstração atingido.');
+    const token = randomBytes(32).toString('base64url');
+    const expires = now() + (options.sessionTtlMs ?? 30 * 60_000);
+    sessions.set(hash(token), { patientId: p.id, expires });
+    auditar(p.id, 'conectou_mobile_demo', p.id);
+    return { accessToken: token, expiresAt: new Date(expires).toISOString(), scope: scopeFor(p.id), patient: { displayName: p.nome }, demo: true };
+  }
+  r.post('/api/mobile/demo-session', route((req, res) => {
+    if (!autoConnectEnabled()) throw new ErroDominio(403, 'autoconexao_desativada', 'A autoconexão da demonstração está desativada.');
+    bound(`demo-session:${req.ip}`, 30);
+    const item = object(req.body, ['patientId']); const p = obterPaciente(id(item.patientId));
+    res.json(newSession(p));
+  }));
   r.post('/api/pro/pacientes/:id/mobile-pairing', route((req, res) => {
     const { p, user } = team(req);
     object(req.body ?? {}, []);
@@ -238,11 +296,7 @@ export function criarIntegracaoMobile(options: MobileOptions = {}) {
     if (sessions.size >= 2000) throw new ErroDominio(429, 'limite_demo', 'Limite de sessões desta demonstração atingido.');
     pairings.delete(hash(code));
     const p = obterPaciente(pairing.patientId);
-    const token = randomBytes(32).toString('base64url');
-    const expires = now() + (options.sessionTtlMs ?? 30 * 60_000);
-    sessions.set(hash(token), { patientId: p.id, expires });
-    auditar(p.id, 'pareou_mobile_demo', p.id);
-    res.json({ accessToken: token, expiresAt: new Date(expires).toISOString(), scope: scopeFor(p.id), patient: { displayName: p.nome }, demo: true });
+    res.json(newSession(p));
   }));
   const prefix = '/api/v1/tenants/:tenantId/hospitals/:hospitalId/patients/:patientId';
   r.get(`${prefix}/summary`, route((req, res) => {
@@ -384,5 +438,6 @@ export function criarIntegracaoMobile(options: MobileOptions = {}) {
   // Keep existing APIs and metadata views backed by the same patient objects.
   persist();
   const dispose = observarReset(() => { extras = fresh(); pairings.clear(); sessions.clear(); attempts.clear(); persist(); });
-  return { router: r, persist, dispose, mobileData };
+  return { router: r, persist, dispose, mobileData, exportSnapshot, importSnapshot };
 }
+export type CloudSnapshot = ReturnType<ReturnType<typeof criarIntegracaoMobile>['exportSnapshot']>;
